@@ -13,7 +13,7 @@ namespace BetterBudget
     {
         // path of save files
         private static string filePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BetterBudgetMod";
-        private static string fileNameSettings = "\\BetterBudgetSettings2.xml";
+        private static string fileNameSettings = "\\BetterBudgetSettings3.xml";
 
         // UIView (main container for UI stuff)
         UIView view;
@@ -130,8 +130,6 @@ namespace BetterBudget
             }
             // finish extended panel by add spacing panel (adds some more space on the bottom of the panel. i am bad at the layout stuff)
             panel.addSpacingPanel();
-            // add expense update
-            panel.eventMouseHover += updateExpenses;
             // set custom (required to delete the panel)
             panel.isCustom = isCustom;
             _containerPanels.Add(panel);
@@ -202,7 +200,7 @@ namespace BetterBudget
         /// </summary>
         /// <param name="component">Extended Panel</param>
         /// <param name="eventParam"></param>
-        private void updateExpenses(UIComponent component, UIMouseEventParameter eventParam)
+        internal void updateExpenses()
         {
             _expenseUpdateTimer = 0;
         }
@@ -210,6 +208,7 @@ namespace BetterBudget
         /// <summary>
         /// Makes main budget panel visible to allow expense values to update.
         /// The one minute cooldown prevents framerate drops.
+        /// Complicated because it has to detect if the player opened the budget panel and budgets are getting updated allready.
         /// </summary>
         public override void Update()
         {
@@ -336,7 +335,15 @@ namespace BetterBudget
 
             for (int i = 0; i < _containerPanels.Count; i++)
             {
-                // hitMilestone (too lazy to remove these, might cause problems down the road...)
+                foreach (String sliderName in _containerPanels[i].getSettings().slider)
+                {
+                    UIPanel originalSlider = findUIPanel(sliderName);
+                    if (originalSlider != null)
+                    {
+                        originalSlider.eventIsEnabledChanged -= _containerPanels[i].hitMilestone;
+                        _containerPanels[i].addSlider(originalSlider);
+                    }
+                }
                 if (_containerPanels[i].attachedPanel != null)
                     _containerPanels[i].attachedPanel.eventVisibilityChanged -= onVisibilityChangeBetterBudget;
                 // delete all created Game Objects
@@ -405,6 +412,7 @@ namespace BetterBudget
                 panelSettings.opacity = 1f;
                 panelSettings.sticky = false;
                 panelSettings.slim = false;
+                panelSettings.noSlider = false;
                 settings.Add(panelSettings);
             }
 
@@ -431,7 +439,6 @@ namespace BetterBudget
                     writer.Close();
             }
         }
-        
     }
 
 }

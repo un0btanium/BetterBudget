@@ -24,5 +24,6 @@ namespace BetterBudget
         public bool sticky { get; set; }
         public bool slim { get; set; }
         public bool isCustom { get; set; }
+        public bool noSlider { get; set; } // unused at the moment but implemented so i dont have to remove save files once again. maybe future use
     }
 }

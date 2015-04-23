@@ -63,10 +63,18 @@ namespace BetterBudget
             _titlebar.updateButton();
         }
 
+        public override void Update()
+        {
+            if (this.containsMouse)
+            {
+                Parent.updateExpenses();
+            }
+        }
+
         /// <summary>
-        /// If the player hits a milestone and unlocks more buildings, the slider has to enabled. And vise versa (not possible without cheating).
+        /// If the player hits a milestone and unlocks more buildings, the slider has to enabled. And vise versa (disable - which is not possible without cheating).
         /// </summary>
-        /// <param name="component">The to change slider panel to change-</param>
+        /// <param name="component">The slider panel to change-</param>
         /// <param name="value">Set the comonent to enabled or disabled.</param>
         public void hitMilestone(UIComponent component, bool value)
         {
@@ -79,6 +87,8 @@ namespace BetterBudget
                 sliderSprite.spriteName = sliderSprite.spriteName + "Disabled";
         }
 
+
+        
         /// <summary>
         /// Adds a slider to the panel. A copy of the slider will be created internally.
         /// </summary>

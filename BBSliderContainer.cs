@@ -16,6 +16,7 @@ namespace BetterBudget
 
         public UIExtendedBudgetPanel Parent { get; set; }
 
+
         /// <summary>
         /// Creates all objects. Call first.
         /// </summary>
@@ -56,7 +57,7 @@ namespace BetterBudget
             spacingPanel.size = new Vector2(1, 7);
             AttachUIComponent(goSpacingPanel);
         }
-
+        
         /// <summary>
         /// Duplicates an existing slider budget panel and changes UI.
         /// </summary>
