@@ -16,19 +16,26 @@ namespace BetterBudget
 
         public UIPanel attachedPanel { get; set; }
         public bool sticky { get; set; }
-        public bool slim { get; set; }
         public bool isCustom { get; set; }
         public BetterBudget Parent { get; set; }
+        public Mode mode { get; set; }
+        public bool isLeft { get; set; }
 
         /// <summary>
         /// Creates all objects based on the settings from last session.
         /// </summary>
         /// <param name="settings">All settings for this panel.</param>
-        public void loadSettings(BBPanelSettings settings)
+        public void load(BBPanelSettings settings)
         {
             _settings = settings;
 
-            relativePosition = new Vector3(settings.x, settings.y);
+            // Settings
+            sticky = settings.sticky;
+            isVisible = settings.sticky;
+            opacity = settings.opacity;
+            isLeft = settings.isLeft;
+            mode = settings.mode;
+            isCustom = settings.isCustom;
             canFocus = true;
             isInteractive = true;
             color = new Color32(255, 255, 255, 255);
@@ -52,17 +59,12 @@ namespace BetterBudget
             _sliderContainer.Parent = this;
             _sliderContainer.start();
 
-            // Settings
-            slim = settings.slim;
-            sticky = settings.sticky;
-            updateSlim(false);
-            if (slim)
-                _sliderContainer.enableSlimMode();
-            isVisible = settings.sticky;
-            opacity = settings.opacity;
-            _titlebar.updateButton();
+            relativePosition = new Vector3(settings.x, settings.y);
         }
 
+        /// <summary>
+        /// Updates expenses if the mouse hovers over the panel.
+        /// </summary>
         public override void Update()
         {
             if (this.containsMouse)
@@ -70,6 +72,73 @@ namespace BetterBudget
                 Parent.updateExpenses();
             }
         }
+
+        /// <summary>
+        /// Toggles through the modes and sets all objects.
+        /// Called from BBSliderContainer object
+        /// </summary>
+        internal void toggleMode()
+        {
+            if (mode == Mode.Default)
+                setMode(Mode.Slim);
+            else if (mode == Mode.Slim)
+                setMode(Mode.noSlider);
+            else if (mode == Mode.noSlider)
+                setMode(Mode.Default);
+        }
+
+        /// <summary>
+        /// Sets the objects to their correct position, size, ect to the new mode.
+        /// </summary>
+        /// <param name="newMode">The mode the extended panel shall switch to.</param>
+        /// <param name="updatePosition">Repositions the panel. Use false upon loading.</param>
+        public void setMode(Mode newMode, bool updatePosition = true)
+        {
+            this.mode = newMode;
+            _titlebar.setMode(mode);
+            _sliderContainer.setMode(mode);
+
+            if (mode == Mode.Slim)
+            {
+                // disable background
+                backgroundSprite = null;
+                // position extended panel
+                if (updatePosition)
+                {
+                    if (isLeft)
+                    {
+                        this.relativePosition = new Vector3(this.relativePosition.x + 239, this.relativePosition.y + 47);
+                    }
+                    else
+                    {
+                        this.relativePosition = new Vector3(this.relativePosition.x + 14, this.relativePosition.y + 47);
+                    }
+                }
+            }
+            else if (mode == Mode.noSlider)
+            {
+                // disable background
+                backgroundSprite = null;
+            }
+            else if (mode == Mode.Default)
+            {
+                // enable background
+                backgroundSprite = "MenuPanel2";
+                // position extended panel
+                if (updatePosition)
+                {
+                    if (isLeft)
+                    {
+                        this.relativePosition = new Vector3(this.relativePosition.x - 239, this.relativePosition.y - 47);
+                    }
+                    else
+                    {
+                        this.relativePosition = new Vector3(this.relativePosition.x - 14, this.relativePosition.y - 47);
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         /// If the player hits a milestone and unlocks more buildings, the slider has to enabled. And vise versa (disable - which is not possible without cheating).
@@ -127,47 +196,10 @@ namespace BetterBudget
         {
             base.OnVisibilityChanged();
             if (!sticky && attachedPanel != null)
+            {
                 relativePosition = new Vector3(attachedPanel.absolutePosition.x, attachedPanel.absolutePosition.y + attachedPanel.height + 5);
-            if (!sticky && attachedPanel != null  && slim)
-            {
-                _sliderContainer.disableSlimMode();
-                slim = false;
-                updateSlim();
-                relativePosition = new Vector3(attachedPanel.absolutePosition.x, attachedPanel.absolutePosition.y + attachedPanel.height + 5);
-            }
-        }
-
-        /// <summary>
-        /// Sets the extended panel into Slim Mode.
-        /// </summary>
-        /// <param name="updatePosition">Slim mode enabled or disabled. Default set to true.</param>
-        public void updateSlim(bool updatePosition = true)
-        {
-            if (slim) // Slim Mode ON
-            {
-                // disable titlebar
-                _titlebar.enableSlimMode();
-
-                // disable background and titlebar
-                backgroundSprite = null;
-
-                // position extended panel
-                if (updatePosition)
-                    this.relativePosition = new Vector3(this.relativePosition.x + 14, this.relativePosition.y + 47);
-
-            }
-            else // Slim Mode OFF
-            {
-                // enable titlebar
-                _titlebar.disableSlimMode();
-
-                // enable background and titlebar
-                backgroundSprite = "MenuPanel2";
-
-                // position extended panel
-                if (updatePosition)
-                    this.relativePosition = new Vector3(this.relativePosition.x - 14, this.relativePosition.y - 47);
-
+                if (mode != Mode.Default)
+                    setMode(Mode.Default);
             }
         }
 
@@ -182,11 +214,10 @@ namespace BetterBudget
             _settings.y = this.relativePosition.y;
             _settings.opacity = this.opacity;
             _settings.sticky = this.sticky;
-            _settings.slim = this.slim;
             _settings.isCustom = this.isCustom;
+            _settings.mode = this.mode;
+            _settings.isLeft = this.isLeft;
             return _settings;
         }
-
-
     }
 }

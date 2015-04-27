@@ -22,8 +22,8 @@ namespace BetterBudget
         public float y { get; set; }
         public float opacity { get; set; }
         public bool sticky { get; set; }
-        public bool slim { get; set; }
         public bool isCustom { get; set; }
-        public bool noSlider { get; set; } // unused at the moment but implemented so i dont have to remove save files once again. maybe future use
+        public Mode mode { get; set; }
+        public bool isLeft { get; set; }
     }
 }

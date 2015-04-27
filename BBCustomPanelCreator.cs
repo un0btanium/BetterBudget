@@ -19,6 +19,7 @@ namespace BetterBudget
         private UISprite _spriteArrow;
         private UITextField _textfield;
         private UISprite _icon;
+        private UISprite _checkbox;
         private string[] spriteIcon = { "InfoIconElectricity", "InfoIconWater", "InfoIconGarbage", "ToolbarIconHealthcare", "InfoIconFireSafety", "ToolbarIconPolice", "InfoIconEducation", "ToolbarIconBeautification", "ToolbarIconMonuments", "SubBarPublicTransportBus", "SubBarPublicTransportTrain", "SubBarPublicTransportMetro", "SubBarPublicTransportShip", "SubBarPublicTransportPlane" };
         private string[] serviceSlider = { "Electricity",
                                          "WaterAndSewage",
@@ -48,7 +49,7 @@ namespace BetterBudget
             isVisible = true;
             backgroundSprite = "MenuPanel2";
             color = new Color32(255, 255, 255, 255);
-            size = new Vector2(400,310);
+            size = new Vector2(400,344);
             name = "Better Budget - Custom Panel Creator";
 
             
@@ -119,7 +120,7 @@ namespace BetterBudget
             _textfield.name = "Text Field Name";
             _textfield.size = new Vector2(340,25);
             _textfield.relativePosition = new Vector3(30, 225);
-            _textfield.text = "Panel Name";
+            _textfield.text = "Budget";
             _textfield.enabled = true;
             _textfield.builtinKeyNavigation = true;
             _textfield.isInteractive = true;
@@ -136,11 +137,25 @@ namespace BetterBudget
             _textfield.color = new Color32(58, 88, 104, 255);
             _textfield.disabledColor = new Color32(254, 254, 254, 255);
 
+            // is Left toggle button and label
+            _checkbox = AddUIComponent<UISprite>();
+            _checkbox.name = "Checkbox";
+            _checkbox.size = new Vector2(25, 25);
+            _checkbox.relativePosition = new Vector3(122, 262);
+            _checkbox.spriteName = "AchievementCheckedFalse";
+            _checkbox.isInteractive = true;
+            _checkbox.eventClick += toggleIsLeft;
+            UILabel labelCheckbox = AddUIComponent<UILabel>();
+            labelCheckbox.name = "Checkbox Label";
+            labelCheckbox.text = "Rightsided";
+            labelCheckbox.relativePosition = new Vector3(165, 263);
+            labelCheckbox.textScale = 1.3f;
+
             // create button
             UIButton button = AddUIComponent<UIButton>();
             button.name = "Create Button";
             button.size = new Vector2(340, 30);
-            button.relativePosition = new Vector3(30, 265);
+            button.relativePosition = new Vector3(30, 300);
             button.normalBgSprite = "ButtonMenu";
             button.focusedBgSprite = "ButtonMenuFocused";
             button.hoveredBgSprite = "ButtonMenuHovered";
@@ -153,6 +168,15 @@ namespace BetterBudget
             updateState();
         }
 
+        private void toggleIsLeft(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            UISprite checkbox = (UISprite) component;
+            if (checkbox.spriteName.Equals("AchievementCheckedFalse"))
+                checkbox.spriteName = "AchievementCheckedTrue";
+            else
+                checkbox.spriteName = "AchievementCheckedFalse";
+        }
+
         /// <summary>
         /// Creates the custom panel based on the selected sliders.
         /// </summary>
@@ -160,26 +184,37 @@ namespace BetterBudget
         /// <param name="eventParam">Unused</param>
         private void createPanel(UIComponent component, UIMouseEventParameter eventParam)
         {
+            if (_containerSelected.childCount == 0)
+                return;
+
             BBPanelSettings settings = new BBPanelSettings();
             settings.name = _textfield.text;
             settings.x = 400;
             settings.y = 200;
             settings.opacity = 1;
             settings.sticky = true;
-            settings.slim = false;
-
-            if (_containerSelected.childCount == 0)
-                return;
-
-
+            settings.mode = Mode.Default;
+            settings.isCustom = true;
+            if (_checkbox.spriteName.Equals("AchievementCheckedTrue"))
+                settings.isLeft = true;
+            else
+                settings.isLeft = false;
             string[] sliderNames = new string[_containerSelected.childCount];
             for (int i = 0; i < _containerSelected.childCount; i++)
             {
                 sliderNames[i] = _containerSelected.components[i].name;
             }
-
             settings.slider = sliderNames;
-            _main.createExtendedPanel(settings, true);
+            _main.createExtendedPanel(settings);
+
+            foreach (UIComponent sprite in _containerSelected.components.ToArray())
+            {
+                toggleSprite(sprite, null);
+            }
+            _checkbox.spriteName = "AchievementCheckedFalse";
+            _spriteArrow.spriteName = "ArrowRight";
+            _spriteArrow.relativePosition = new Vector3(163, 100);
+            _textfield.text = "Budget";
         }
 
         /// <summary>
@@ -227,7 +262,7 @@ namespace BetterBudget
                     component.isVisible = true;
                 }
                 backgroundSprite = "MenuPanel2";
-                size = new Vector2(400, 310);
+                size = new Vector2(400, 344);
             }
             else
             {

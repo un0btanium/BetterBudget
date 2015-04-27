@@ -13,7 +13,7 @@ namespace BetterBudget
     {
         // path of save files
         private static string filePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BetterBudgetMod";
-        private static string fileNameSettings = "\\BetterBudgetSettings3.xml";
+        private static string fileNameSettings = "\\BetterBudgetSettings4.xml";
 
         // UIView (main container for UI stuff)
         UIView view;
@@ -96,7 +96,7 @@ namespace BetterBudget
         /// </summary>
         /// <param name="data">The settings the panel gets created with.</param>
         /// <param name="isCustom">If the panel got created by the user. Gets deleted if closed by the player.</param>
-        public void createExtendedPanel(BBPanelSettings data, bool isCustom = false)
+        public void createExtendedPanel(BBPanelSettings data)
         {
             if (data.isCustom && !data.sticky) // delete closed custom panels (stops panels from summing up into infinity)
                 return;
@@ -106,8 +106,10 @@ namespace BetterBudget
             UIExtendedBudgetPanel panel = go.AddComponent<UIExtendedBudgetPanel>();
             // attach extended panel to better budget panel/container
             panel.transform.parent = this.transform;
+            // set parent to BetterBudget
+            panel.Parent = this;
             // insert save data
-            panel.loadSettings(data);
+            panel.load(data);
             // add information panel which opens and closes the extended panel simultaneously/in-sync (optional)
             if (data.informationPanel != null)
             {
@@ -130,8 +132,7 @@ namespace BetterBudget
             }
             // finish extended panel by add spacing panel (adds some more space on the bottom of the panel. i am bad at the layout stuff)
             panel.addSpacingPanel();
-            // set custom (required to delete the panel)
-            panel.isCustom = isCustom;
+            panel.setMode(data.mode, false);
             _containerPanels.Add(panel);
         }
 
@@ -411,14 +412,15 @@ namespace BetterBudget
                 panelSettings.y = 400f;
                 panelSettings.opacity = 1f;
                 panelSettings.sticky = false;
-                panelSettings.slim = false;
-                panelSettings.noSlider = false;
+                panelSettings.mode = Mode.Default;
+                panelSettings.isCustom = false;
+                panelSettings.isLeft = false;
                 settings.Add(panelSettings);
             }
 
             BBPanelSettings customPanelSettings = new BBPanelSettings();
             customPanelSettings.x = 80;
-            customPanelSettings.y = 13;
+            customPanelSettings.y = 80;
 
             BBSettings BBsettings = new BBSettings();
             BBsettings.panelSettings = settings;
@@ -439,6 +441,13 @@ namespace BetterBudget
                     writer.Close();
             }
         }
+    }
+
+    public enum Mode
+    {
+        Default,
+        Slim,
+        noSlider
     }
 
 }

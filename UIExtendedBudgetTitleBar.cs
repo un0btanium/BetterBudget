@@ -23,7 +23,7 @@ namespace BetterBudget
         {
             // RoadOptionStraightPressed possible icon
             name = "TitleBar";
-            isVisible = true;
+            setMode(Parent.mode); // isVisible
             canFocus = true;
             isInteractive = true;
             width = 385;
@@ -32,6 +32,7 @@ namespace BetterBudget
             // Title
             bool customPanel = false;
             _title = AddUIComponent<UILabel>();
+            _title.name = "Title Label";
             switch (Parent.name)
             {
                 case "ExtendedPanelElectricity":
@@ -80,9 +81,11 @@ namespace BetterBudget
                 _title.text = titletext;
             }
             _title.relativePosition = new Vector3(185-(_title.text.Length*4), 11);
+            _title.textScale = 1.1f;
 
             // Drag Handler
             _draghandler = AddUIComponent<UIDragHandle>();
+            _draghandler.name = "Draghandler";
             _draghandler.target = Parent;
             _draghandler.width = width;
             _draghandler.height = height;
@@ -91,22 +94,40 @@ namespace BetterBudget
 
             // Sticky Checkbox
             _stickybutton = AddUIComponent<UIButton>();
-            _stickybutton.normalBgSprite = "LocationMarkerActiveHovered";
-            _stickybutton.pressedBgSprite = "LocationMarkerActivePressed";
-            _stickybutton.hoveredBgSprite = "LocationMarkerActiveFocused";
-            _stickybutton.focusedBgSprite = "LocationMarkerActivePressed";
-            _stickybutton.eventClick += setSticky;
+            _stickybutton.name = "Sticky Button";
+            if (customPanel)
+            {
+                _stickybutton.normalBgSprite = "buttonclose";
+                _stickybutton.pressedBgSprite = "buttonclosehover";
+                _stickybutton.hoveredBgSprite = "buttonclosepressed";
+                _stickybutton.focusedBgSprite = "buttonclosehover";
+            }
+            else
+            {
+                _stickybutton.normalBgSprite = "LocationMarkerActiveHovered";
+                _stickybutton.pressedBgSprite = "LocationMarkerActivePressed";
+                _stickybutton.hoveredBgSprite = "LocationMarkerActiveFocused";
+                _stickybutton.focusedBgSprite = "LocationMarkerActivePressed";
+            }
+            _stickybutton.eventClick += toogleSticky;
             _stickybutton.size = new Vector2(36,36);
             _stickybutton.relativePosition = new Vector3(width-43,2);
 
             // Money Icon
             _icon = AddUIComponent<UISprite>();
+            _icon.name = "Icon";
             _icon.relativePosition = new Vector3(4, 2);
             _icon.spriteName = "MoneyThumb";
             _icon.size = new Vector2(40, 40);
             _icon.eventClick += changeOpacity;
-            
+        }
 
+        public void setMode(Mode mode)
+        {
+            if (mode != Mode.Default)
+                isVisible = false;
+            else
+                isVisible = true;
         }
 
         /// <summary>
@@ -126,7 +147,7 @@ namespace BetterBudget
         /// </summary>
         /// <param name="component">Unused</param>
         /// <param name="eventParam">Unused</param>
-        private void setSticky(UIComponent component, UIMouseEventParameter eventParam)
+        private void toogleSticky(UIComponent component, UIMouseEventParameter eventParam)
         {
             Parent.sticky = !Parent.sticky;
             updateButton();
@@ -154,22 +175,5 @@ namespace BetterBudget
                     Parent.isVisible = false;
             }
         }
-
-        /// <summary>
-        /// On slim mode enabled, close title bar.
-        /// </summary>
-        public void enableSlimMode()
-        {
-            isVisible = false;
-        }
-
-        /// <summary>
-        /// On slim mode disabled, open title bar.
-        /// </summary>
-        public void disableSlimMode()
-        {
-            isVisible = true;
-        }
-        
     }
 }
