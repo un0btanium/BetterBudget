@@ -133,7 +133,7 @@ namespace BetterBudget
             _textfield.textColor = new Color32(174, 197, 211, 255);
             _textfield.disabledTextColor = new Color32(254, 254, 254, 255);
             _textfield.textScale = 1.3f;
-            _textfield.opacity = 1;
+            _textfield.opacity = 1f;
             _textfield.color = new Color32(58, 88, 104, 255);
             _textfield.disabledColor = new Color32(254, 254, 254, 255);
 
@@ -191,7 +191,7 @@ namespace BetterBudget
             settings.name = _textfield.text;
             settings.x = 400;
             settings.y = 200;
-            settings.opacity = 1;
+            settings.opacity = 1f;
             settings.sticky = true;
             settings.mode = Mode.Default;
             settings.isCustom = true;

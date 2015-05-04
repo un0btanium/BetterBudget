@@ -30,15 +30,14 @@ namespace BetterBudget
             _settings = settings;
 
             // Settings
+            canFocus = true;
+            isInteractive = true;
+            color = new Color32(255, 255, 255, 255);
             sticky = settings.sticky;
             isVisible = settings.sticky;
             opacity = settings.opacity;
             isLeft = settings.isLeft;
-            mode = settings.mode;
             isCustom = settings.isCustom;
-            canFocus = true;
-            isInteractive = true;
-            color = new Color32(255, 255, 255, 255);
 
             // Layout
             autoLayoutDirection = LayoutDirection.Vertical;
@@ -70,6 +69,23 @@ namespace BetterBudget
             if (this.containsMouse)
             {
                 Parent.updateExpenses();
+            }
+            if (attachedPanel != null && isVisible)
+            {
+                if (Parent._buttonContainer.isVisible)
+                {
+                    if (mode == Mode.Default && relativePosition.x >= -10 && relativePosition.x <= 5 && relativePosition.y >= attachedPanel.absolutePosition.y + attachedPanel.height && relativePosition.y <= attachedPanel.absolutePosition.y + attachedPanel.height + 7)
+                        relativePosition = new Vector3(81, relativePosition.y);
+                    else if (mode != Mode.Default && relativePosition.x >= 4 && relativePosition.x <= 19 && relativePosition.y >= attachedPanel.absolutePosition.y + attachedPanel.height + 45 && relativePosition.y <= attachedPanel.absolutePosition.y + attachedPanel.height + 54)
+                        relativePosition = new Vector3(95, relativePosition.y);
+                }
+                else if (!Parent._buttonContainer.isVisible)
+                {
+                    if (mode == Mode.Default && relativePosition.x >= 80 && relativePosition.x <= 85 && relativePosition.y >= attachedPanel.absolutePosition.y + attachedPanel.height && relativePosition.y <= attachedPanel.absolutePosition.y + attachedPanel.height + 7)
+                        relativePosition = new Vector3(0, relativePosition.y);
+                    else if (mode != Mode.Default && relativePosition.x >= 94 && relativePosition.x <= 99 && relativePosition.y >= attachedPanel.absolutePosition.y + attachedPanel.height + 45 && relativePosition.y <= attachedPanel.absolutePosition.y + attachedPanel.height + 54)
+                        relativePosition = new Vector3(14, relativePosition.y);
+                }
             }
         }
 
@@ -182,25 +198,11 @@ namespace BetterBudget
         /// <param name="visible">If the panel is visible or invisble.</param>
         public void setVisibility(Boolean visible)
         {
+            if (relativePosition.x == 0 && relativePosition.y == 0 && attachedPanel != null)
+                relativePosition = new Vector3(attachedPanel.absolutePosition.x, attachedPanel.absolutePosition.y + attachedPanel.height + 5);
             if (!sticky)
                 isVisible = visible;
-            else if (visible)
-                isVisible = true;
             _titlebar.updateButton();
-        }
-        
-        /// <summary>
-        /// Used to open and position the panel if opened by the attached information panel.
-        /// </summary>
-        protected override void OnVisibilityChanged()
-        {
-            base.OnVisibilityChanged();
-            if (!sticky && attachedPanel != null)
-            {
-                relativePosition = new Vector3(attachedPanel.absolutePosition.x, attachedPanel.absolutePosition.y + attachedPanel.height + 5);
-                if (mode != Mode.Default)
-                    setMode(Mode.Default);
-            }
         }
 
         /// <summary>

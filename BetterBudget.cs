@@ -19,7 +19,7 @@ namespace BetterBudget
         UIView view;
 
         // information button (top left)
-        private UIPanel _buttonContainer;
+        public UIPanel _buttonContainer;
 
         // Custom Panel Creator panel
         BBCustomPanelCreator _customPanelCreator;
@@ -61,7 +61,6 @@ namespace BetterBudget
 
             // detect opening of button container
             _buttonContainer = view.FindUIComponent<UIPanel>("InfoViewsPanel");
-            _buttonContainer.eventVisibilityChanged += onVisibilityChangeBetterBudget;
 
             // create list for extended panels
             _containerPanels = new List<UIExtendedBudgetPanel>();
@@ -245,38 +244,15 @@ namespace BetterBudget
         /// <param name="visible">button container opened or closed</param>
         private void onVisibilityChangeBetterBudget(UIComponent component, bool visible)
         {
-
-            if (component == _buttonContainer)
-            {
-                if (visible)
-                {
-                    for (int i = 0; i < _containerPanels.Count; i++ )
-                    {
-                        changePosition(_containerPanels[i],81,0);
-                    }
-                }
-                return;
-            }
             closeAllWindows();
-            for (int i = 0; i < _containerPanels.Count; i++ )
+            for (int i = 0; i < _containerPanels.Count; i++)
             {
                 if (_containerPanels[i].attachedPanel == component)
                     _containerPanels[i].setVisibility(visible);
-
             }
+            
         }
 
-        /// <summary>
-        /// Used to move panels around. Does not work if the panel is sticky.
-        /// </summary>
-        /// <param name="panel">The to move extended panel.</param>
-        /// <param name="X">The relative change in x-direction.</param>
-        /// <param name="Y">The relative change in y-direction.</param>
-        private void changePosition(UIExtendedBudgetPanel panel, float X, float Y)
-        {
-            if (!panel.sticky && panel.relativePosition.x == 0)
-                panel.relativePosition = new Vector3(panel.relativePosition.x + X, panel.relativePosition.y + Y);
-        }
 
         /// <summary>
         /// Closes all extended panels if they are not sticky.
@@ -306,23 +282,6 @@ namespace BetterBudget
             }
         }
 
-        /// <summary>
-        /// Search for extended panel by it's name.
-        /// </summary>
-        /// <param name="name">The extended panel's name to search for.</param>
-        /// <returns>Returns the index in _containerPanels. Returns -1 if panel could not be found.</returns>
-        private int searchPanelIndex(String name)
-        {
-            name = "ExtendedPanel" + name;
-            for (int i = 0; i < _containerPanels.Count; i++)
-            {
-                if (_containerPanels[i].name.Equals(name))
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
 
         /// <summary>
         /// Deletes all method calls and game objects created.
@@ -331,8 +290,6 @@ namespace BetterBudget
         {
             // save settings
             saveSettings();
-
-            _buttonContainer.eventVisibilityChanged -= onVisibilityChangeBetterBudget;
 
             for (int i = 0; i < _containerPanels.Count; i++)
             {
@@ -408,8 +365,8 @@ namespace BetterBudget
                 panelSettings.slider = sliderPanelTemplate[i];
                 panelSettings.informationPanel = informationPanelName[i];
 
-                panelSettings.x = 400f;
-                panelSettings.y = 400f;
+                panelSettings.x = 0;
+                panelSettings.y = 0;
                 panelSettings.opacity = 1f;
                 panelSettings.sticky = false;
                 panelSettings.mode = Mode.Default;
