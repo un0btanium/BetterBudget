@@ -55,34 +55,54 @@ namespace BetterBudget
 
             foreach (UIPanel panel in sliders)
             {
-                UIComponent slider = panel.Find("Slider");
+                UIComponent sliderDay = panel.Find("DaySlider");
+                UIComponent sliderNight = panel.Find("NightSlider");
+                UIComponent sliderBackground = panel.Find<UISlicedSprite>("SliderBackground");
                 UILabel total = panel.Find<UILabel>("Total");
-                UILabel percentage = panel.Find<UILabel>("Percentage");
+                UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
+                UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
                 UIComponent icon = panel.Find("Icon");
-                UIButton buttonPlus = panel.Find<UIButton>("Budget Plus One Button");
-                UIButton buttonMinus = panel.Find<UIButton>("Budget Minus One Button");
+                UIButton buttonPlusDay = panel.Find<UIButton>("Budget Plus One Button Day");
+                UIButton buttonMinusDay = panel.Find<UIButton>("Budget Minus One Button Day");
+                UIButton buttonPlusNight = panel.Find<UIButton>("Budget Plus One Button Night");
+                UIButton buttonMinusNight = panel.Find<UIButton>("Budget Minus One Button Night");
 
                 panel.width = cs.panelWidth;
 
-                slider.size = new Vector2(210,slider.height);
-                slider.relativePosition = new Vector3(cs.sliderX, slider.relativePosition.y);
-                slider.isVisible = cs.sliderIsVisible;
+                sliderDay.size = new Vector2(210, sliderDay.height);
+                sliderDay.relativePosition = new Vector3(cs.sliderX, sliderDay.relativePosition.y);
+                sliderDay.isVisible = cs.sliderIsVisible;
+                sliderNight.size = new Vector2(210, sliderNight.height);
+                sliderNight.relativePosition = new Vector3(cs.sliderX, sliderNight.relativePosition.y);
+                sliderNight.isVisible = cs.sliderIsVisible;
+
+                // background slider sprite has to be scaled extra since After Dark update
+                sliderBackground.size = new Vector2(sliderDay.size.x, sliderBackground.height);
+                sliderBackground.relativePosition = new Vector3(cs.sliderX, sliderBackground.relativePosition.y);
+                sliderBackground.isVisible = cs.sliderIsVisible;
 
                 total.relativePosition = new Vector3(cs.totalX, cs.totalY);
                 total.size = new Vector2(cs.totalWidth, cs.totalHeight);
                 total.isVisible = cs.totalIsVisible;
 
-                percentage.relativePosition = new Vector3(cs.percentageX, cs.percentageY);
-                percentage.size = new Vector2(cs.percentageWidth, cs.percentageHeight);
-                percentage.isVisible = cs.percentageIsVisible;
+                percentageDay.relativePosition = new Vector3(cs.percentageDayX, cs.percentageDayY);
+                percentageDay.size = new Vector2(cs.percentageWidth, cs.percentageHeight);
+                percentageDay.isVisible = cs.percentageIsVisible;
+                percentageNight.relativePosition = new Vector3(cs.percentageNightX, cs.percentageNightY);
+                percentageNight.size = new Vector2(cs.percentageWidth, cs.percentageHeight);
+                percentageNight.isVisible = cs.percentageIsVisible;
 
                 icon.relativePosition = new Vector3(cs.iconX, icon.relativePosition.y);
 
-                buttonPlus.relativePosition = new Vector3(cs.buttonPlusX, cs.buttonPlusY);
-                buttonPlus.isVisible = cs.buttonPlusIsVisible;
+                buttonPlusDay.relativePosition = new Vector3(cs.buttonPlusDayX, cs.buttonPlusDayY);
+                buttonPlusDay.isVisible = cs.buttonPlusIsVisible;
+                buttonPlusNight.relativePosition = new Vector3(cs.buttonPlusNightX, cs.buttonPlusNightY);
+                buttonPlusNight.isVisible = cs.buttonPlusIsVisible;
 
-                buttonMinus.relativePosition = new Vector3(cs.buttonMinusX, cs.buttonMinusY);
-                buttonMinus.isVisible = cs.buttonMinusIsVisible;
+                buttonMinusDay.relativePosition = new Vector3(cs.buttonMinusDayX, cs.buttonMinusDayY);
+                buttonMinusDay.isVisible = cs.buttonMinusIsVisible;
+                buttonMinusNight.relativePosition = new Vector3(cs.buttonMinusNightX, cs.buttonMinusNightY);
+                buttonMinusNight.isVisible = cs.buttonMinusIsVisible;
             }
 
             autoLayoutPadding = new RectOffset(cs.autolayoutpadding[0], cs.autolayoutpadding[1], cs.autolayoutpadding[2], cs.autolayoutpadding[3]);
@@ -103,17 +123,22 @@ namespace BetterBudget
             }
         }
 
+
+
         /// <summary>
         /// Decreases the percentage value of the budget.
         /// </summary>
         /// <param name="component">The clicked button.</param>
         /// <param name="eventParam">Unused</param>
-        private void adjustBudgetMinus(UIComponent component, UIMouseEventParameter eventParam)
+        private void adjustBudgetMinusDay(UIComponent component, UIMouseEventParameter eventParam)
         {
             UIComponent panel = component.parent;
-            UISlider slider = panel.Find<UISlider>("Slider");
-            slider.value -= 1;
-            UILabel percentage = panel.Find<UILabel>("Percentage");
+            UISlider slider = panel.Find<UISlider>("DaySlider");
+            if (slider.value - 5 > 50)
+                slider.value -= 5;
+            else
+                slider.value = 50;
+            UILabel percentage = panel.Find<UILabel>("DayPercentage");
             percentage.text = "" + slider.value;
         }
 
@@ -122,14 +147,53 @@ namespace BetterBudget
         /// </summary>
         /// <param name="component">The clicked button.</param>
         /// <param name="eventParam">Unused</param>
-        private void adjustBudgetPlus(UIComponent component, UIMouseEventParameter eventParam)
+        private void adjustBudgetPlusDay(UIComponent component, UIMouseEventParameter eventParam)
         {
             UIComponent panel = component.parent;
-            UISlider slider = panel.Find<UISlider>("Slider");
-            slider.value += 1;
-            UILabel percentage = panel.Find<UILabel>("Percentage");
+            UISlider slider = panel.Find<UISlider>("DaySlider");
+            if (slider.value + 5 < 150)
+                slider.value += 5;
+            else
+                slider.value = 150;
+            UILabel percentage = panel.Find<UILabel>("DayPercentage");
             percentage.text = "" + slider.value;
         }
+
+        /// <summary>
+        /// Decreases the percentage value of the budget.
+        /// </summary>
+        /// <param name="component">The clicked button.</param>
+        /// <param name="eventParam">Unused</param>
+        private void adjustBudgetMinusNight(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            UIComponent panel = component.parent;
+            UISlider slider = panel.Find<UISlider>("NightSlider");
+            if (slider.value - 5 > 50)
+                slider.value -= 5;
+            else
+                slider.value = 50;
+            UILabel percentage = panel.Find<UILabel>("NightPercentage");
+            percentage.text = "" + slider.value;
+        }
+
+        /// <summary>
+        /// Increases tthe percentage value of the budget.
+        /// </summary>
+        /// <param name="component">The clicked button.</param>
+        /// <param name="eventParam">Unused</param>
+        private void adjustBudgetPlusNight(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            UIComponent panel = component.parent;
+            UISlider slider = panel.Find<UISlider>("NightSlider");
+            if (slider.value + 5 < 150)
+                slider.value += 5;
+            else
+                slider.value = 150;
+            UILabel percentage = panel.Find<UILabel>("NightPercentage");
+            percentage.text = "" + slider.value;
+        }
+
+
 
         /// <summary>
         /// Adds a copy of the slider panel object to the extended panel.
@@ -156,6 +220,9 @@ namespace BetterBudget
             AttachUIComponent(goSpacingPanel);
         }
         
+
+
+
         /// <summary>
         /// Duplicates an existing slider budget panel and changes UI.
         /// </summary>
@@ -165,18 +232,32 @@ namespace BetterBudget
         {
             UIPanel panel = InstanceManager.Instantiate(original);
             
+
+            // NEW
             panel.width = cs.panelWidth;
             panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
-            //panel.eventMouseEnter += onPanelEnter;
-            UIComponent slider = panel.Find("Slider");
-            slider.size = new Vector2(210, slider.height);
-            slider.relativePosition = new Vector3(cs.sliderX, slider.relativePosition.y);
-            slider.isVisible = cs.sliderIsVisible;
-            UILabel percentage = panel.Find<UILabel>("Percentage");
-            percentage.relativePosition = new Vector3(cs.percentageX, cs.percentageY);
-            percentage.size = new Vector2(cs.percentageWidth, cs.percentageHeight);
-            percentage.textScale = 0.9f;
-            percentage.isVisible = cs.percentageIsVisible;
+            UIComponent sliderDay = panel.Find("DaySlider");
+            sliderDay.size = new Vector2(210, sliderDay.height);
+            sliderDay.relativePosition = new Vector3(cs.sliderX, sliderDay.relativePosition.y);
+            sliderDay.isVisible = cs.sliderIsVisible;
+            UIComponent sliderNight = panel.Find("NightSlider");
+            sliderNight.size = new Vector2(210, sliderNight.height);
+            sliderNight.relativePosition = new Vector3(cs.sliderX, sliderNight.relativePosition.y);
+            sliderNight.isVisible = cs.sliderIsVisible;
+            UIComponent sliderBackground = panel.Find("SliderBackground");
+            sliderBackground.size = new Vector2(sliderDay.size.x, sliderBackground.height);
+            sliderBackground.relativePosition = new Vector3(cs.sliderX, sliderBackground.relativePosition.y);
+            sliderBackground.isVisible = cs.sliderIsVisible;
+            UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
+            percentageDay.relativePosition = new Vector3(cs.percentageDayX, cs.percentageDayY);
+            percentageDay.size = new Vector2(cs.percentageWidth, cs.percentageHeight);
+            percentageDay.textScale = 0.9f;
+            percentageDay.isVisible = cs.percentageIsVisible;
+            UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
+            percentageNight.relativePosition = new Vector3(cs.percentageNightX, cs.percentageNightY);
+            percentageNight.size = new Vector2(cs.percentageWidth, cs.percentageHeight);
+            percentageNight.textScale = 0.9f;
+            percentageNight.isVisible = cs.percentageIsVisible;
             UILabel total = panel.Find<UILabel>("Total");
             total.relativePosition = new Vector3(cs.totalX, cs.totalY);
             total.size = new Vector2(cs.totalWidth, cs.totalHeight);
@@ -186,42 +267,74 @@ namespace BetterBudget
             icon.relativePosition = new Vector3(cs.iconX, icon.relativePosition.y);
             icon.eventClick += toggleMode;
             icon.isInteractive = true;
-            UIButton buttonMinus = panel.AddUIComponent<UIButton>();
-            buttonMinus.name = "Budget Minus One Button";
-            buttonMinus.size = new Vector2(18, 18);
-            buttonMinus.relativePosition = new Vector3(cs.buttonMinusX, cs.buttonMinusY);
-            buttonMinus.normalBgSprite = "ButtonMenu";
-            buttonMinus.focusedBgSprite = "ButtonMenuFocused";
-            buttonMinus.hoveredBgSprite = "ButtonMenuHovered";
-            buttonMinus.pressedBgSprite = "ButtonMenuPressed";
-            buttonMinus.text = "-";
-            buttonMinus.textScale = 1.2f;
-            buttonMinus.textHorizontalAlignment = UIHorizontalAlignment.Center;
-            buttonMinus.textVerticalAlignment = UIVerticalAlignment.Middle;
-            buttonMinus.textColor = new Color32(255,0,0,255);
-            buttonMinus.eventClick += adjustBudgetMinus;
-            buttonMinus.isVisible = cs.buttonMinusIsVisible;
-            UIButton buttonPlus = panel.AddUIComponent<UIButton>();
-            buttonPlus.name = "Budget Plus One Button";
-            buttonPlus.size = new Vector2(18, 18);
-            buttonPlus.relativePosition = new Vector3(cs.buttonPlusX, cs.buttonPlusY);
-            buttonPlus.normalBgSprite = "ButtonMenu";
-            buttonPlus.focusedBgSprite = "ButtonMenuFocused";
-            buttonPlus.hoveredBgSprite = "ButtonMenuHovered";
-            buttonPlus.pressedBgSprite = "ButtonMenuPressed";
-            buttonPlus.text = "+";
-            buttonPlus.textColor = new Color32(0, 255, 0, 255);
-            buttonPlus.textScale = 1.2f;
-            buttonPlus.textHorizontalAlignment = UIHorizontalAlignment.Center;
-            buttonPlus.textVerticalAlignment = UIVerticalAlignment.Middle;
-            buttonPlus.eventClick += adjustBudgetPlus;
-            buttonPlus.isVisible = cs.buttonPlusIsVisible;
+            UIButton buttonMinusDay = panel.AddUIComponent<UIButton>();
+            buttonMinusDay.name = "Budget Minus One Button Day";
+            buttonMinusDay.size = new Vector2(18, 18);
+            buttonMinusDay.relativePosition = new Vector3(cs.buttonMinusDayX, cs.buttonMinusDayY);
+            buttonMinusDay.normalBgSprite = "ButtonMenu";
+            buttonMinusDay.focusedBgSprite = "ButtonMenuFocused";
+            buttonMinusDay.hoveredBgSprite = "ButtonMenuHovered";
+            buttonMinusDay.pressedBgSprite = "ButtonMenuPressed";
+            buttonMinusDay.text = "-";
+            buttonMinusDay.textScale = 1.2f;
+            buttonMinusDay.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            buttonMinusDay.textVerticalAlignment = UIVerticalAlignment.Middle;
+            buttonMinusDay.textColor = new Color32(255, 0, 0, 255);
+            buttonMinusDay.eventClick += adjustBudgetMinusDay;
+            buttonMinusDay.isVisible = cs.buttonMinusIsVisible;
+            UIButton buttonPlusDay = panel.AddUIComponent<UIButton>();
+            buttonPlusDay.name = "Budget Plus One Button Day";
+            buttonPlusDay.size = new Vector2(18, 18);
+            buttonPlusDay.relativePosition = new Vector3(cs.buttonPlusDayX, cs.buttonPlusDayY);
+            buttonPlusDay.normalBgSprite = "ButtonMenu";
+            buttonPlusDay.focusedBgSprite = "ButtonMenuFocused";
+            buttonPlusDay.hoveredBgSprite = "ButtonMenuHovered";
+            buttonPlusDay.pressedBgSprite = "ButtonMenuPressed";
+            buttonPlusDay.text = "+";
+            buttonPlusDay.textColor = new Color32(0, 255, 0, 255);
+            buttonPlusDay.textScale = 1.2f;
+            buttonPlusDay.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            buttonPlusDay.textVerticalAlignment = UIVerticalAlignment.Middle;
+            buttonPlusDay.eventClick += adjustBudgetPlusDay;
+            buttonPlusDay.isVisible = cs.buttonPlusIsVisible;
+            UIButton buttonMinusNight = panel.AddUIComponent<UIButton>();
+            buttonMinusNight.name = "Budget Minus One Button Night";
+            buttonMinusNight.size = new Vector2(18, 18);
+            buttonMinusNight.relativePosition = new Vector3(cs.buttonMinusDayX, cs.buttonMinusDayY);
+            buttonMinusNight.normalBgSprite = "ButtonMenu";
+            buttonMinusNight.focusedBgSprite = "ButtonMenuFocused";
+            buttonMinusNight.hoveredBgSprite = "ButtonMenuHovered";
+            buttonMinusNight.pressedBgSprite = "ButtonMenuPressed";
+            buttonMinusNight.text = "-";
+            buttonMinusNight.textScale = 1.2f;
+            buttonMinusNight.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            buttonMinusNight.textVerticalAlignment = UIVerticalAlignment.Middle;
+            buttonMinusNight.textColor = new Color32(255, 0, 0, 255);
+            buttonMinusNight.eventClick += adjustBudgetMinusNight;
+            buttonMinusNight.isVisible = cs.buttonMinusIsVisible;
+            UIButton buttonPlusNight = panel.AddUIComponent<UIButton>();
+            buttonPlusNight.name = "Budget Plus One Button Night";
+            buttonPlusNight.size = new Vector2(18, 18);
+            buttonPlusNight.relativePosition = new Vector3(cs.buttonPlusDayX, cs.buttonPlusDayY);
+            buttonPlusNight.normalBgSprite = "ButtonMenu";
+            buttonPlusNight.focusedBgSprite = "ButtonMenuFocused";
+            buttonPlusNight.hoveredBgSprite = "ButtonMenuHovered";
+            buttonPlusNight.pressedBgSprite = "ButtonMenuPressed";
+            buttonPlusNight.text = "+";
+            buttonPlusNight.textColor = new Color32(0, 255, 0, 255);
+            buttonPlusNight.textScale = 1.2f;
+            buttonPlusNight.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            buttonPlusNight.textVerticalAlignment = UIVerticalAlignment.Middle;
+            buttonPlusNight.eventClick += adjustBudgetPlusNight;
+            buttonPlusNight.isVisible = cs.buttonPlusIsVisible;
             return panel;
+
         }
 
 
+
         /// <summary>
-        /// If the mouse enters the slider, this method shows percentage and hides total value.
+        /// If the mouse enters the slider, this method shows percentages and hides the total value.
         /// Displays the slider in slim mode.
         /// </summary>
         /// <param name="panel">The slider object the player hovers over</param>
@@ -229,34 +342,50 @@ namespace BetterBudget
         {
             UILabel total = panel.Find<UILabel>("Total");
             total.isVisible = false;
-            UILabel percentage = panel.Find<UILabel>("Percentage");
-            percentage.isVisible = true;
-            UISlider slider = panel.Find<UISlider>("Slider");
-            percentage.text = "" + slider.value;
+            UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
+            UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
+            percentageDay.isVisible = true;
+            percentageNight.isVisible = true;
+            UISlider sliderDay = panel.Find<UISlider>("DaySlider");
+            UISlider sliderNight = panel.Find<UISlider>("NightSlider");
+            percentageDay.text = "" + sliderDay.value;
+            percentageNight.text = "" + sliderNight.value;
+            UIComponent sliderBackground = panel.Find("SliderBackground");
             if (Parent.mode == Mode.Slim)
             {
                 panel.width = 355;
-                slider.isVisible = true;
-                slider.size = new Vector2(210, slider.height); // fixes a bug (slider too long otherwise)
+                sliderDay.isVisible = true;
+                sliderNight.isVisible = true;
+                sliderBackground.isVisible = true;
+                sliderDay.size = new Vector2(210, sliderDay.height); // fixes a bug (slider too long otherwise)
+                sliderNight.size = new Vector2(210, sliderNight.height); // fixes a bug (slider too long otherwise)
+                sliderBackground.size = new Vector2(210, sliderBackground.height); // fixes a bug (slider too long otherwise)
+                
                 if (Parent.isLeft)
                 {
                     UISprite icon = panel.Find<UISprite>("Icon");
                     icon.relativePosition = new Vector3(315, icon.relativePosition.y);
-                    percentage.relativePosition = new Vector3(10, cs.percentageY);
+                    percentageDay.relativePosition = new Vector3(10, cs.percentageDayY);
+                    percentageNight.relativePosition = new Vector3(51, cs.percentageNightY); // TODO: validate correctness of the x coordination
                     total.relativePosition = new Vector3(10, cs.totalY);
                 }
                 else
                 {
-                    percentage.relativePosition = new Vector3(265, cs.percentageY);
+                    percentageDay.relativePosition = new Vector3(265, cs.percentageDayY);
+                    percentageNight.relativePosition = new Vector3(306, cs.percentageNightY); // TODO: validate correctness of the x coordination
                     total.relativePosition = new Vector3(265, cs.totalY);
                 }
             }
             else if (Parent.mode == Mode.noSlider)
             {
-                UIButton buttonPlus = panel.Find<UIButton>("Budget Plus One Button");
-                UIButton buttonMinus = panel.Find<UIButton>("Budget Minus One Button");
-                buttonPlus.isVisible = true;
-                buttonMinus.isVisible = true;
+                UIButton buttonPlusDay = panel.Find<UIButton>("Budget Plus One Button Day");
+                UIButton buttonMinusDay = panel.Find<UIButton>("Budget Minus One Button Day");
+                UIButton buttonPlusNight = panel.Find<UIButton>("Budget Plus One Button Night");
+                UIButton buttonMinusNight = panel.Find<UIButton>("Budget Minus One Button Night");
+                buttonPlusDay.isVisible = true;
+                buttonMinusDay.isVisible = true;
+                buttonPlusNight.isVisible = true;
+                buttonMinusNight.isVisible = true;
             }
         }
 
@@ -268,33 +397,47 @@ namespace BetterBudget
         {
             UILabel total = panel.Find<UILabel>("Total");
             total.isVisible = true;
-            UILabel percentage = panel.Find<UILabel>("Percentage");
-            percentage.isVisible = false;
+            UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
+            UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
+            percentageDay.isVisible = false;
+            percentageNight.isVisible = false;
             if (Parent.mode == Mode.Slim)
             {
                 panel.width = 130;
-                UIComponent slider = panel.Find("Slider");
-                slider.isVisible = false;
-                slider.size = new Vector2(210, slider.height);
+                UIComponent sliderDay = panel.Find("DaySlider");
+                UIComponent sliderNight = panel.Find("NightSlider");
+                UIComponent sliderBackground = panel.Find("SliderBackground");
+                sliderDay.isVisible = false;
+                sliderNight.isVisible = false;
+                sliderBackground.isVisible = false;
+                sliderDay.size = new Vector2(210, sliderDay.height);
+                sliderNight.size = new Vector2(210, sliderNight.height);
+                sliderBackground.size = new Vector2(210, sliderBackground.height);
                 if (Parent.isLeft)
                 {
                     UISprite icon = panel.Find<UISprite>("Icon");
                     icon.relativePosition = new Vector3(cs.iconX, icon.relativePosition.y);
-                    percentage.relativePosition = new Vector3(cs.percentageX, cs.percentageY);
+                    percentageDay.relativePosition = new Vector3(cs.percentageDayX, cs.percentageDayY);
+                    percentageNight.relativePosition = new Vector3(cs.percentageNightX, cs.percentageNightY);
                     total.relativePosition = new Vector3(cs.totalX, cs.totalY);
                 }
                 else
                 {
-                    percentage.relativePosition = new Vector3(45, cs.percentageY);
+                    percentageDay.relativePosition = new Vector3(45, cs.percentageDayY);
+                    percentageNight.relativePosition = new Vector3(86, cs.percentageNightY);
                     total.relativePosition = new Vector3(45, cs.totalY);
                 }
             }
             else if (Parent.mode == Mode.noSlider)
             {
-                UIButton buttonPlus = panel.Find<UIButton>("Budget Plus One Button");
-                UIButton buttonMinus = panel.Find<UIButton>("Budget Minus One Button");
-                buttonPlus.isVisible = false;
-                buttonMinus.isVisible = false;
+                UIButton buttonPlusDay = panel.Find<UIButton>("Budget Plus One Button Day");
+                UIButton buttonMinusDay = panel.Find<UIButton>("Budget Minus One Button Day");
+                UIButton buttonPlusNight = panel.Find<UIButton>("Budget Plus One Button Night");
+                UIButton buttonMinusNight = panel.Find<UIButton>("Budget Minus One Button Night");
+                buttonPlusDay.isVisible = false;
+                buttonMinusDay.isVisible = false;
+                buttonPlusNight.isVisible = false;
+                buttonMinusNight.isVisible = false;
             }
         }
 

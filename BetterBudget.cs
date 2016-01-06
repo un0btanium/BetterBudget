@@ -94,7 +94,6 @@ namespace BetterBudget
         /// Creates extended panel.
         /// </summary>
         /// <param name="data">The settings the panel gets created with.</param>
-        /// <param name="isCustom">If the panel got created by the user. Gets deleted if closed by the player.</param>
         public void createExtendedPanel(BBPanelSettings data)
         {
             if (data.isCustom && !data.sticky) // delete closed custom panels (stops panels from summing up into infinity)

@@ -23,20 +23,26 @@ namespace BetterBudget
         public int totalHeight;
         public bool totalIsVisible;
 
-        public int percentageX;
-        public int percentageY;
+        public int percentageDayX;
+        public int percentageDayY;
+        public int percentageNightX;
+        public int percentageNightY;
         public int percentageWidth;
         public int percentageHeight;
         public bool percentageIsVisible;
 
         public int iconX;
 
-        public int buttonPlusX;
-        public int buttonPlusY;
+        public int buttonPlusDayX;
+        public int buttonPlusDayY;
+        public int buttonPlusNightX;
+        public int buttonPlusNightY;
         public bool buttonPlusIsVisible;
 
-        public int buttonMinusX;
-        public int buttonMinusY;
+        public int buttonMinusDayX;
+        public int buttonMinusDayY;
+        public int buttonMinusNightX;
+        public int buttonMinusNightY;
         public bool buttonMinusIsVisible;
 
         /// <summary>
@@ -58,25 +64,31 @@ namespace BetterBudget
                     sliderIsVisible = true;
 
                     totalX = 10;
-                    totalY = 10;
+                    totalY = 13;
                     totalWidth = 80;
                     totalHeight = 18;
                     totalIsVisible = true;
 
-                    percentageX = 10;
-                    percentageY = 10;
-                    percentageWidth = 80;
+                    percentageDayX = 10;
+                    percentageDayY = 13;
+                    percentageNightX = 51;
+                    percentageNightY = 13;
+                    percentageWidth = 39;
                     percentageHeight = 18;
                     percentageIsVisible = false;
 
                     iconX = 315;
 
-                    buttonPlusX = 155;
-                    buttonPlusY = 10;
+                    buttonPlusDayX = 155;
+                    buttonPlusDayY = 13;
+                    buttonPlusNightX = 155;
+                    buttonPlusNightY = 13;
                     buttonPlusIsVisible = false;
 
-                    buttonMinusX = 45;
-                    buttonMinusY = 10;
+                    buttonMinusDayX = 45;
+                    buttonMinusDayY = 13;
+                    buttonMinusNightX = 45;
+                    buttonMinusNightY = 13;
                     buttonMinusIsVisible = false;
                 }
                 else
@@ -88,25 +100,31 @@ namespace BetterBudget
                     sliderIsVisible = true;
 
                     totalX = 265;
-                    totalY = 10;
+                    totalY = 13;
                     totalWidth = 80;
                     totalHeight = 18;
                     totalIsVisible = true;
 
-                    percentageX = 265;
-                    percentageY = 10;
-                    percentageWidth = 80;
+                    percentageDayX = 265;
+                    percentageDayY = 13;
+                    percentageNightX = 306;
+                    percentageNightY = 13;
+                    percentageWidth = 39;
                     percentageHeight = 18;
                     percentageIsVisible = false;
 
                     iconX = 3;
 
-                    buttonPlusX = 155;
-                    buttonPlusY = 10;
+                    buttonPlusDayX = 155;
+                    buttonPlusDayY = 13;
+                    buttonPlusNightX = 155;
+                    buttonPlusNightY = 13;
                     buttonPlusIsVisible = false;
 
-                    buttonMinusX = 45;
-                    buttonMinusY = 10;
+                    buttonMinusDayX = 45;
+                    buttonMinusDayY = 13;
+                    buttonMinusNightX = 45;
+                    buttonMinusNightY = 13;
                     buttonMinusIsVisible = false;
                 }
                 
@@ -122,25 +140,31 @@ namespace BetterBudget
                     sliderIsVisible = false;
 
                     totalX = 6;
-                    totalY = 10;
+                    totalY = 13;
                     totalWidth = 80;
                     totalHeight = 18;
                     totalIsVisible = true;
 
-                    percentageX = 6;
-                    percentageY = 10;
-                    percentageWidth = 80;
+                    percentageDayX = 6;
+                    percentageDayY = 13;
+                    percentageNightX = 47;
+                    percentageNightY = 13;
+                    percentageWidth = 39;
                     percentageHeight = 18;
                     percentageIsVisible = false;
 
                     iconX = 90;
 
-                    buttonPlusX = 155;
-                    buttonPlusY = 10;
+                    buttonPlusDayX = 155;
+                    buttonPlusDayY = 13;
+                    buttonPlusNightX = 155;
+                    buttonPlusNightY = 13;
                     buttonPlusIsVisible = false;
 
-                    buttonMinusX = 45;
-                    buttonMinusY = 10;
+                    buttonMinusDayX = 45;
+                    buttonMinusDayY = 13;
+                    buttonMinusNightX = 45;
+                    buttonMinusNightY = 13;
                     buttonMinusIsVisible = false;
                 }
                 else
@@ -152,25 +176,31 @@ namespace BetterBudget
                     sliderIsVisible = false;
 
                     totalX = 45;
-                    totalY = 10;
+                    totalY = 13;
                     totalWidth = 80;
                     totalHeight = 18;
                     totalIsVisible = true;
 
-                    percentageX = 45;
-                    percentageY = 10;
-                    percentageWidth = 80;
+                    percentageDayX = 45;
+                    percentageDayY = 13;
+                    percentageNightX = 86;
+                    percentageNightY = 13;
+                    percentageWidth = 39;
                     percentageHeight = 18;
                     percentageIsVisible = false;
 
                     iconX = 3;
 
-                    buttonPlusX = 155;
-                    buttonPlusY = 10;
+                    buttonPlusDayX = 155;
+                    buttonPlusDayY = 13;
+                    buttonPlusNightX = 155;
+                    buttonPlusNightY = 13;
                     buttonPlusIsVisible = false;
 
-                    buttonMinusX = 45;
-                    buttonMinusY = 10;
+                    buttonMinusDayX = 45;
+                    buttonMinusDayY = 13;
+                    buttonMinusNightX = 45;
+                    buttonMinusNightY = 13;
                     buttonMinusIsVisible = false;
                 }
             }
@@ -185,25 +215,31 @@ namespace BetterBudget
                     sliderIsVisible = false;
 
                     totalX = 6;
-                    totalY = 10;
+                    totalY = 13;
                     totalWidth = 80;
                     totalHeight = 18;
                     totalIsVisible = true;
 
-                    percentageX = 6;
-                    percentageY = 10;
+                    percentageDayX = 6;
+                    percentageDayY = 5;
+                    percentageNightX = 6; // TDOO: new different layout 
+                    percentageNightY = 23;
                     percentageWidth = 80;
                     percentageHeight = 18;
                     percentageIsVisible = false;
 
                     iconX = 90;
 
-                    buttonPlusX = 6;
-                    buttonPlusY = 10;
+                    buttonPlusDayX = 6;
+                    buttonPlusDayY = 5;
+                    buttonPlusNightX = 6; // TDOO: new different layout 
+                    buttonPlusNightY = 23;
                     buttonPlusIsVisible = false;
-
-                    buttonMinusX = 69;
-                    buttonMinusY = 10;
+                    
+                    buttonMinusDayX = 69;
+                    buttonMinusDayY = 5;
+                    buttonMinusNightX = 69; // TDOO: new different layout 
+                    buttonMinusNightY = 23;
                     buttonMinusIsVisible = false;
                 }
                 else
@@ -215,25 +251,31 @@ namespace BetterBudget
                     sliderIsVisible = false;
 
                     totalX = 45;
-                    totalY = 10;
+                    totalY = 13;
                     totalWidth = 80;
                     totalHeight = 18;
                     totalIsVisible = true;
 
-                    percentageX = 45;
-                    percentageY = 10;
+                    percentageDayX = 45;
+                    percentageDayY = 5;
+                    percentageNightX = 45; // TDOO: new different layout
+                    percentageNightY = 23;
                     percentageWidth = 80;
                     percentageHeight = 18;
                     percentageIsVisible = false;
 
                     iconX = 3;
 
-                    buttonPlusX = 107;
-                    buttonPlusY = 10;
+                    buttonPlusDayX = 107;
+                    buttonPlusDayY = 5;
+                    buttonPlusNightX = 107; // TDOO: new different layout
+                    buttonPlusNightY = 23;
                     buttonPlusIsVisible = false;
 
-                    buttonMinusX = 45;
-                    buttonMinusY = 10;
+                    buttonMinusDayX = 45;
+                    buttonMinusDayY = 5;
+                    buttonMinusNightX = 45; // TDOO: new different layout
+                    buttonMinusNightY = 23;
                     buttonMinusIsVisible = false;
                 }
             }
