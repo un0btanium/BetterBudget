@@ -10,7 +10,7 @@ namespace BetterBudget
     public class BBModLoader : LoadingExtensionBase
     {
         private LoadMode _mode;
-        private BetterBudget _betterBudgetPanel;
+        private BetterBudget2 _betterBudgetPanel;
 
         /// <summary>
         /// Loads the mod if in gameplay mode and not in editor.
@@ -30,9 +30,7 @@ namespace BetterBudget
 
             // create container to hold the mod objects
             GameObject goBetterBudget = new GameObject("BetterBudgetMod");
-            _betterBudgetPanel = goBetterBudget.AddComponent<BetterBudget>();
-            _betterBudgetPanel.transform.parent = view.transform;
-            
+            _betterBudgetPanel = goBetterBudget.AddComponent<BetterBudget2>();
         }
 
         /// <summary>
@@ -41,13 +39,14 @@ namespace BetterBudget
         public override void OnLevelUnloading()
         {
             // only unloads in gameplay mode
-            if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame)
+            if ((_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame))
                 return;
 
-            _betterBudgetPanel.unload();
-            GameObject.Destroy(_betterBudgetPanel);
+            if (_betterBudgetPanel != null)
+            {
+                _betterBudgetPanel.unload();
+                GameObject.Destroy(_betterBudgetPanel.gameObject);
+            }
         }
-
-        
     }
 }

@@ -11,8 +11,20 @@ namespace BetterBudget
     /// </summary>
     public class BBSettings
     {
+        public List<BBEmbeddedSaveFile> embeddedPanelSettings;
+        public List<BBCustomSaveFile> customPanelSettings;
+        public bool expanseUpdateActive;
+
+        public BBSettings()
+        {
+            embeddedPanelSettings = new List<BBEmbeddedSaveFile>();
+            customPanelSettings = new List<BBCustomSaveFile>();
+            expanseUpdateActive = true;
+        }
+        /*
         public List<BBPanelSettings> panelSettings = new List<BBPanelSettings>();
         public bool expenseUpdateActive = true;
         public BBPanelSettings customPanelCreatorSettings;
+         */
     }
 }
