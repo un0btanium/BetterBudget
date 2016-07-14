@@ -259,6 +259,8 @@ namespace BetterBudget
 
         private void createSaveFile()
         {
+            System.IO.Directory.CreateDirectory(filePath); // create folder
+
             BBSettings settings = new BBSettings();
             settings.expanseUpdateActive = true;
             
