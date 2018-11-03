@@ -52,6 +52,7 @@ namespace BetterBudget
 
             //UIView.FullScreenContainer.EconomyPanel isVisible
             _expensePanel = view.FindUIComponent("FullScreenContainer").Find<UIPanel>("EconomyPanel");
+            _expensePanel.absolutePosition = new Vector3(_expensePanel.absolutePosition.x, 5000, _expensePanel.absolutePosition.y); // fix/workaround for economy budget window flickering
 
             // Create list for slider panels
             _sliderList = new Dictionary<String, UIPanel>();
@@ -60,11 +61,17 @@ namespace BetterBudget
             // Find budget container with all slider panels
             _budgetPanel = view.FindUIComponent<UIPanel>("FullScreenContainer").Find<UIPanel>("EconomyPanel").Find<UITabContainer>("EconomyContainer").Find<UIPanel>("Budget");
 
-            // Get all slider panels out of the buget container
-            foreach (UIPanel servicesContainer in _budgetPanel.components)
+            // Get all slider panels out of the budget container
+            foreach (UIComponent servicesContainer in _budgetPanel.components)
             {
-                foreach (UIPanel sliderPanel in servicesContainer.components)
+                foreach (UIComponent sliderPanel in servicesContainer.components)
                 {
+                    // DEBUG
+                    //foreach (UIComponent component in sliderPanel.components)
+                    //{
+                    //    Debug.Log(component.name, component);
+                    //}
+
                     String spriteName;
                     UISprite originalSprite = sliderPanel.Find<UISprite>("Icon");
 
@@ -74,12 +81,13 @@ namespace BetterBudget
                         spriteName = originalSprite.spriteName;
 
                     _spriteDictionary.Add(sliderPanel.name, spriteName);
-                    _sliderList.Add(sliderPanel.name, sliderPanel);
+                    _sliderList.Add(sliderPanel.name, (UIPanel) sliderPanel);
 
                     sliderPanel.eventIsEnabledChanged += hitMilestone;
                 }
             }
 
+            // Get all service panels (info views)
             List<UIPanel> infoViewPanelList = new List<UIPanel>();
             _embeddedBudgetPanelList = new List<UIEmbeddedBudgetPanel>();
 
@@ -91,14 +99,14 @@ namespace BetterBudget
                 }
             }
 
-
+            // create mod panels and add them to the service info view panels
             foreach (UIPanel infoViewPanel in infoViewPanelList) {
                 UIEmbeddedBudgetPanel embeddedPanel = infoViewPanel.AddUIComponent<UIEmbeddedBudgetPanel>();
                 embeddedPanel.initialize(this, infoViewPanel);
                 _embeddedBudgetPanelList.Add(embeddedPanel);
             }
 
-            // load settings (pretty complex to be expansion viable)
+            // load settings (complex to be expansion viable)
             BBSettings settings = loadSettings();
             if (settings.embeddedPanelSettings.Count > 0)
             {
@@ -112,8 +120,10 @@ namespace BetterBudget
                     String panelName = panel.getInfoViewPanel().name;
                     if (map.ContainsKey(panelName)) {
                         if (map[panelName].Count > 0)
+                        {
                             panel.setSliderPanel(map[panelName].ToArray());
-                        panel.settings.budgetSliderNameList = map[panelName]; // required to save settings even tho sliders from expansion may be unavailable
+                        }
+                        panel.settings.budgetSliderNameList = map[panelName]; // ensures that settings are saved across sessions even if some expansions and their budgets may be disabled
                     }
                 }
             }
@@ -126,6 +136,7 @@ namespace BetterBudget
                 {
                     UICustomBudgetPanel panel = AddUIComponent<UICustomBudgetPanel>();
                     panel.initialize(this, savefile);
+                    panel.settings.budgetSliderNameList = savefile.budgetSliderNameList; // ensures that settings are saved across sessions even if some expansions and their budgets may be disabled
                 }
             }
 
@@ -156,7 +167,7 @@ namespace BetterBudget
             if (_budgetWindowManipulated)
             {
                 _expensePanel.isVisible = false;
-                _expenseUpdateTimer = 3600;
+                _expenseUpdateTimer = 1800;
                 _budgetWindowManipulated = false;
             }
             else if (_expenseUpdateTimer <= 0 && !_expensePanel.isVisible)

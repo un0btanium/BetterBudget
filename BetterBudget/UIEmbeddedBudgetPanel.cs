@@ -55,17 +55,29 @@ namespace BetterBudget
             clearSliderPanel();
             settings.budgetSliderNameList.Clear();
 
+            int numberOfSliders = 0;
+
             foreach (String sliderName in sliderPanels)
             {
                 UIPanel originalSlider = _main.getSliderPanel(sliderName);
                 if (originalSlider != null)
                 {
-                    settings.budgetSliderNameList.Add(sliderName);
+                    // DEBUG
+                    //foreach (UIComponent component in originalSlider.components)
+                    //{
+                    //    Debug.Log(component.name, component);
+                    //}
+
+                    numberOfSliders++;
+                    
                     UIPanel panel = InstanceManager.Instantiate(originalSlider);
+                    //UIPanel panel = Instantiate<UIPanel>(originalSlider);
+                    
                     panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
                     AttachUIComponent(panel.gameObject);
-                    UIComponent sliderDay = panel.Find("DaySlider");
-                    UIComponent sliderNight = panel.Find("NightSlider");
+
+                    UIComponent sliderDay = panel.Find<UISlider>("DaySlider");
+                    UIComponent sliderNight = panel.Find<UISlider>("NightSlider");
                     UIComponent sliderBackground = panel.Find<UISlicedSprite>("SliderBackground");
                     UILabel total = panel.Find<UILabel>("Total");
                     UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
@@ -96,10 +108,12 @@ namespace BetterBudget
                 }
             }
 
-            if ( _sliderList.Count > 0)
-                changeInfoViewPanelHeight(_infoViewPanel.height + _sliderList.Count * 50 + 10);
+            if (numberOfSliders > 0)
+            {
+                changeInfoViewPanelHeight(_infoViewPanel.height + numberOfSliders * 50 + 10);
+            }
 
-            this.height += _sliderList.Count * 50;
+            this.height += numberOfSliders * 50;
         }
 
 
@@ -115,7 +129,7 @@ namespace BetterBudget
             {
                 GameObject.Destroy(_sliderList[i].gameObject);
             }
-            _sliderList.Clear(); // required?
+            _sliderList.Clear();
         }
 
         private void onPanelEnter(UIPanel panel)

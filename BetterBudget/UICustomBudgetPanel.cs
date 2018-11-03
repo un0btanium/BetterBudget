@@ -357,13 +357,16 @@ namespace BetterBudget
 
             settings.budgetSliderNameList.Clear();
 
+            int numberOfSliders = 0;
+
             foreach (String sliderName in sliderPanels)
             {
                 UIPanel originalSlider = _main.getSliderPanel(sliderName);
                 if (originalSlider != null)
                 {
-                    settings.budgetSliderNameList.Add(sliderName);
-                    UIPanel panel = InstanceManager.Instantiate(originalSlider);
+                    numberOfSliders++;
+
+                    UIPanel panel = InstanceManager.Instantiate<UIPanel>(originalSlider);
                     panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
                     AttachUIComponent(panel.gameObject);
                     UIComponent sliderDay = panel.Find("DaySlider");
@@ -466,7 +469,7 @@ namespace BetterBudget
                     _sliderList.Add(panel);
                 }
             }
-            this.height = _sliderList.Count * 50 + 46;
+            this.height = numberOfSliders * 50 + 46;
         }
 
 
