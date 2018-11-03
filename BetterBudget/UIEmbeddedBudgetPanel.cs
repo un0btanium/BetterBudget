@@ -21,6 +21,8 @@ namespace BetterBudget
 
         private bool isEditEnabled;
 
+        private bool isPublicTransportInfoViewPanelAndDidNotApplyFix;
+
         public void initialize(BetterBudget2 main, UIPanel infoViewPanel)
         {
             this._main = main;
@@ -34,6 +36,11 @@ namespace BetterBudget
             this.isEditEnabled = true;
             settings = new BBEmbeddedSaveFile();
             settings.infoViewPanelName = infoViewPanel.name;
+
+            this.isPublicTransportInfoViewPanelAndDidNotApplyFix = false;
+            if (infoViewPanel.name.Equals("(Library) PublicTransportInfoViewPanel"))
+                this.isPublicTransportInfoViewPanelAndDidNotApplyFix = true;
+            
 
             UISprite icon = _infoViewPanel.Find("Caption").Find<UISprite>("Icon");
             icon.eventClick += openSelectorPanel;
@@ -105,6 +112,7 @@ namespace BetterBudget
                     percentageNight.size = new Vector2(45, total.height);
 
                     _sliderList.Add(panel);
+                    settings.budgetSliderNameList.Add(sliderName);
                 }
             }
 
@@ -185,6 +193,36 @@ namespace BetterBudget
         {
             if (!isVisible)
                 return;
+
+            // fix for panel height because of invisible public transport entries (which occurs when expansions are not installed/enabled) (execute only once)
+            if (isPublicTransportInfoViewPanelAndDidNotApplyFix)
+            {
+                int invisibleEntries = 0;
+                foreach (UIComponent panel in _infoViewPanel.Find<UIPanel>("TransportContainer").components)
+                {
+                    if (!panel.isVisible)
+                    {
+                        invisibleEntries++;
+                    }
+                }
+                //Debug.Log("TransportContainer Entries: " + _infoViewPanel.Find<UIPanel>("TransportContainer").components.Count + " Invisible: " + invisibleEntries);
+                _infoViewPanel.height -= 23 * invisibleEntries;
+
+                invisibleEntries = 0;
+                foreach (UIPanel panel in _infoViewPanel.Find<UIPanel>("Legend").Find<UIPanel>("Panel").components)
+                {
+                    if (!panel.isVisible)
+                    {
+                        invisibleEntries++;
+                    }
+                }
+
+                //Debug.Log("Legend Entries: " + _infoViewPanel.Find<UIPanel>("Legend").Find<UIPanel>("Panel").components.Count + " Invisible: " + invisibleEntries);
+                _infoViewPanel.height -= 18 * invisibleEntries;
+                isPublicTransportInfoViewPanelAndDidNotApplyFix = false;
+            }
+
+            // Normal Update Routine
             foreach (UIPanel panel in _sliderList)
             {
                 if (panel.containsMouse)
@@ -217,7 +255,8 @@ namespace BetterBudget
             slider.isEnabled = value;
             UISprite sliderSprite = slider.Find<UISprite>("Icon");
             if (value)
-                sliderSprite.spriteName = sliderSprite.spriteName.Substring(0, sliderSprite.spriteName.Length - 8);
+                if (sliderSprite.spriteName.Length - 8 > 0)
+                    sliderSprite.spriteName = sliderSprite.spriteName.Substring(0, sliderSprite.spriteName.Length - 8);
             else
                 sliderSprite.spriteName = sliderSprite.spriteName + "Disabled";
         }

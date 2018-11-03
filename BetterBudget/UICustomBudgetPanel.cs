@@ -31,7 +31,7 @@ namespace BetterBudget
         {
             this._main = main;
             _main.addCustomPanel(this);
-            this.settings = settings;
+            this.settings = new BBCustomSaveFile();
             this.relativePosition = new Vector3(settings.x, settings.y);
             this.isEditEnabled = true;
             this.name = "Custom Budget Panel";
@@ -90,6 +90,7 @@ namespace BetterBudget
                 }
             }
 
+            this.settings = settings; // ensures that settings are saved across sessions even if some expansions and their budgets may be disabled
         }
 
         private void deleteCustomPanel(UIComponent component, UIMouseEventParameter eventParam)
@@ -354,7 +355,6 @@ namespace BetterBudget
         public void setSliderPanel(String[] sliderPanels)
         {
             clearSliderPanel();
-
             settings.budgetSliderNameList.Clear();
 
             int numberOfSliders = 0;
@@ -467,6 +467,7 @@ namespace BetterBudget
                     icon.BringToFront();
 
                     _sliderList.Add(panel);
+                    settings.budgetSliderNameList.Add(sliderName);
                 }
             }
             this.height = numberOfSliders * 50 + 46;
@@ -486,7 +487,8 @@ namespace BetterBudget
             slider.isEnabled = value;
             UISprite sliderSprite = slider.Find<UISprite>("Icon");
             if (value)
-                sliderSprite.spriteName = sliderSprite.spriteName.Substring(0, sliderSprite.spriteName.Length - 8);
+                if (sliderSprite.spriteName.Length - 8 > 0)
+                    sliderSprite.spriteName = sliderSprite.spriteName.Substring(0, sliderSprite.spriteName.Length - 8);
             else
                 sliderSprite.spriteName = sliderSprite.spriteName + "Disabled";
         }
