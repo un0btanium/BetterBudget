@@ -1,5 +1,5 @@
 # BetterBudget
-An UI mod for the Cities Skylines game providing more convenient way to access to the budget sliders.
+An UI mod for the Cities Skylines game providing a more convenient way to access the budget sliders from the economy panel.
 
 
 ## Steam Workshop
