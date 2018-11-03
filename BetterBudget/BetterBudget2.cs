@@ -136,7 +136,6 @@ namespace BetterBudget
                 {
                     UICustomBudgetPanel panel = AddUIComponent<UICustomBudgetPanel>();
                     panel.initialize(this, savefile);
-                    panel.settings.budgetSliderNameList = savefile.budgetSliderNameList; // ensures that settings are saved across sessions even if some expansions and their budgets may be disabled
                 }
             }
 
@@ -301,7 +300,7 @@ namespace BetterBudget
             infoViewPanelNameList.Add("(Library) NaturalResourcesInfoViewPanel");
             budgetSliderNameList.Add(new String[] {});
             infoViewPanelNameList.Add("(Library) PublicTransportInfoViewPanel");
-            budgetSliderNameList.Add(new String[] {"Bus", "Metro", "Train", "Ship", "Plane", "Taxi", "Tram"});
+            budgetSliderNameList.Add(new String[] {"Bus", "Metro", "Train", "Ship", "Plane", "Taxi", "Tram", "Monorail", "CableCar"});
             infoViewPanelNameList.Add("(Library) ElectricityInfoViewPanel");
             budgetSliderNameList.Add(new String[] {"Electricity"});
             infoViewPanelNameList.Add("(Library) HappinessInfoViewPanel");
