@@ -23,6 +23,8 @@ namespace BetterBudget
 
         private bool isPublicTransportInfoViewPanelAndDidNotApplyFix;
 
+
+
         public void initialize(BetterBudget2 main, UIPanel infoViewPanel)
         {
             this._main = main;
@@ -39,13 +41,21 @@ namespace BetterBudget
 
             this.isPublicTransportInfoViewPanelAndDidNotApplyFix = false;
             if (infoViewPanel.name.Equals("(Library) PublicTransportInfoViewPanel"))
+            {
                 this.isPublicTransportInfoViewPanelAndDidNotApplyFix = true;
-            
+            }
+
+            //if (infoViewPanel.name.Equals("(Library) WaterInfoViewPanel"))
+            //{
+            //    this.relativePosition = new Vector3(16, _infoViewPanel.height + 2);
+            //}
 
             UISprite icon = _infoViewPanel.Find("Caption").Find<UISprite>("Icon");
             icon.eventClick += openSelectorPanel;
             icon.BringToFront();
         }
+
+
 
         private void openSelectorPanel(UIComponent component, UIMouseEventParameter eventParam)
         {
@@ -66,22 +76,23 @@ namespace BetterBudget
 
             foreach (String sliderName in sliderPanels)
             {
-                UIPanel originalSlider = _main.getSliderPanel(sliderName);
-                if (originalSlider != null)
+                BudgetItem budgetItem = _main.getBudgetCopy(sliderName);
+                
+                if (budgetItem != null)
                 {
                     // DEBUG
-                    //foreach (UIComponent component in originalSlider.components)
+                    //foreach (UIComponent component in budgetItem.components)
                     //{
                     //    Debug.Log(component.name, component);
                     //}
 
                     numberOfSliders++;
                     
-                    UIPanel panel = InstanceManager.Instantiate(originalSlider);
-                    //UIPanel panel = Instantiate<UIPanel>(originalSlider);
+                    UIPanel panel = (UIPanel) budgetItem.component;
                     
                     panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
-                    AttachUIComponent(panel.gameObject);
+                    //AttachUIComponent(panel.gameObject);
+                    AttachUIComponent(budgetItem.gameObject);
 
                     UIComponent sliderDay = panel.Find<UISlider>("DaySlider");
                     UIComponent sliderNight = panel.Find<UISlider>("NightSlider");
@@ -111,7 +122,7 @@ namespace BetterBudget
                     percentageNight.relativePosition = new Vector3(panel.width - 47, total.relativePosition.y);
                     percentageNight.size = new Vector2(45, total.height);
 
-                    _sliderList.Add(panel);
+                    this._sliderList.Add(panel);
                     settings.budgetSliderNameList.Add(sliderName);
                 }
             }
@@ -135,10 +146,13 @@ namespace BetterBudget
 
             for (int i = 0; i < _sliderList.Count; i++)
             {
+                _main.removeBudgetCopy(_sliderList[i]);
                 GameObject.Destroy(_sliderList[i].gameObject);
             }
             _sliderList.Clear();
         }
+
+
 
         private void onPanelEnter(UIPanel panel)
         {
@@ -151,6 +165,8 @@ namespace BetterBudget
             percentageNight.isVisible = true;
         }
 
+
+
         private void onPanelLeave(UIPanel panel)
         {
             UILabel total = panel.Find<UILabel>("Total");
@@ -161,6 +177,8 @@ namespace BetterBudget
             percentageDay.isVisible = false;
             percentageNight.isVisible = false;
         }
+
+
 
         private void changeInfoViewPanelHeight(float newHeight) {
             if (newHeight == 0)
@@ -187,6 +205,7 @@ namespace BetterBudget
                 list[i].size = new Vector2(Width[i], Height[i]);
             }
         }
+
 
 
         public override void Update()
@@ -237,29 +256,13 @@ namespace BetterBudget
             }
         }
 
+
+
         public void enableEditButton()
         {
             isEditEnabled = true;
         }
 
-        /// <summary>
-        /// If the player hits a milestone and unlocks more buildings, the slider has to enabled. And vise versa (disable - which is not possible without cheating).
-        /// </summary>
-        /// <param name="component">The slider panel to change-</param>
-        /// <param name="value">Set the comonent to enabled or disabled.</param>
-        public void hitMilestone(UIComponent component, bool value)
-        {
-            UIPanel slider = Find<UIPanel>(component.name);
-            if (slider == null)
-                return;
-            slider.isEnabled = value;
-            UISprite sliderSprite = slider.Find<UISprite>("Icon");
-            if (value)
-                if (sliderSprite.spriteName.Length - 8 > 0)
-                    sliderSprite.spriteName = sliderSprite.spriteName.Substring(0, sliderSprite.spriteName.Length - 8);
-            else
-                sliderSprite.spriteName = sliderSprite.spriteName + "Disabled";
-        }
 
         
         public BBEmbeddedSaveFile getSettings()
@@ -270,6 +273,8 @@ namespace BetterBudget
                 changeInfoViewPanelHeight(_infoViewPanel.height - _sliderList.Count * 50 - 10);
             return settings;
         }
+
+
 
         public UIPanel getInfoViewPanel()
         {

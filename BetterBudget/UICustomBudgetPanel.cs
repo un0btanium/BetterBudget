@@ -27,11 +27,14 @@ namespace BetterBudget
 
         private List<UIPanel> _sliderList;
 
+        private List<Int32> _timer;
+
         public void initialize(BetterBudget2 main, BBCustomSaveFile settings)
         {
             this._main = main;
             _main.addCustomPanel(this);
             this.settings = new BBCustomSaveFile();
+            this._timer = new List<int>();
             this.relativePosition = new Vector3(settings.x, settings.y);
             this.isEditEnabled = true;
             this.name = "Custom Budget Panel";
@@ -93,16 +96,21 @@ namespace BetterBudget
             this.settings = settings; // ensures that settings are saved across sessions even if some expansions and their budgets may be disabled
         }
 
+
+
         private void deleteCustomPanel(UIComponent component, UIMouseEventParameter eventParam)
         {
             _main.removeCustomPanel(this);
             _main.RemoveUIComponent(this);
+            clearSliderPanel();
             foreach (Transform child in transform)
             {
                 GameObject.Destroy(child.gameObject);
             }
             GameObject.Destroy(this.gameObject);
         }
+
+
 
         private void openSelectorPanel(UIComponent component, UIMouseEventParameter eventParam)
         {
@@ -113,16 +121,21 @@ namespace BetterBudget
             }
         }
 
+
+
         public void enableEditButton()
         {
             isEditEnabled = true;
         }
 
 
+
         private void toggleMode(UIComponent component, UIMouseEventParameter eventParam)
         {
             toggleMode();
         }
+
+
 
         private void toggleMode() {
             if (!isEditEnabled)
@@ -234,23 +247,52 @@ namespace BetterBudget
             }
         }
 
+
+
         public override void Update()
         {
             if (!isVisible)
                 return;
+            int c = 0;
+
+            int mouseIsOnPanelID = -1;
+
             foreach (UIPanel panel in _sliderList)
             {
-                if (panel.containsMouse)
+                if (panel.containsMouse )
                 {
-                    onPanelEnter(panel);
+                    mouseIsOnPanelID = c;
+                    if (_timer[c] == 0)
+                    {
+                        onPanelEnter(panel);
+                    }
+                    if (_timer[c] < 20)
+                    {
+                        _timer[c] = 20;
+                    }
                 }
-                else
+                c++;
+            }
+
+            for (int i = 0; i < _timer.Count; i++ )
+            {
+                if (_timer[i] > 0)
                 {
-                    onPanelLeave(panel);
+                    if (_timer[i] == 1)
+                    {
+                        onPanelLeave(_sliderList[i]);
+                    }
+
+                    if (mouseIsOnPanelID != i)
+                    {
+                        _timer[i]--;
+                    }
                 }
 
             }
         }
+
+
 
         private void onPanelEnter(UIPanel panel)
         {
@@ -294,6 +336,8 @@ namespace BetterBudget
                 percentageNight.size = new Vector2(90, 18);
             }
         }
+
+
 
         private void onPanelLeave(UIPanel panel)
         {
@@ -339,6 +383,8 @@ namespace BetterBudget
             }
         }
 
+
+
         private void clearSliderPanel()
         {
             if (_sliderList.Count == 0)
@@ -347,10 +393,14 @@ namespace BetterBudget
 
             for (int i = 0; i < _sliderList.Count; i++)
             {
+                _main.removeBudgetCopy(_sliderList[i]);
                 GameObject.Destroy(_sliderList[i].gameObject);
             }
             _sliderList.Clear();
+            _timer.Clear();
         }
+
+
 
         public void setSliderPanel(String[] sliderPanels)
         {
@@ -361,12 +411,14 @@ namespace BetterBudget
 
             foreach (String sliderName in sliderPanels)
             {
-                UIPanel originalSlider = _main.getSliderPanel(sliderName);
-                if (originalSlider != null)
+                BudgetItem budgetItem = _main.getBudgetCopy(sliderName);
+
+                if (budgetItem != null)
                 {
                     numberOfSliders++;
+                    _timer.Add(0);
 
-                    UIPanel panel = InstanceManager.Instantiate<UIPanel>(originalSlider);
+                    UIPanel panel = (UIPanel) budgetItem.component;
                     panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
                     AttachUIComponent(panel.gameObject);
                     UIComponent sliderDay = panel.Find("DaySlider");
@@ -474,24 +526,6 @@ namespace BetterBudget
         }
 
 
-        /// <summary>
-        /// If the player hits a milestone and unlocks more buildings, the slider has to enabled. And vise versa (disable - which is not possible without cheating).
-        /// </summary>
-        /// <param name="component">The slider panel to change-</param>
-        /// <param name="value">Set the comonent to enabled or disabled.</param>
-        public void hitMilestone(UIComponent component, bool value)
-        {
-            UIPanel slider = Find<UIPanel>(component.name);
-            if (slider == null)
-                return;
-            slider.isEnabled = value;
-            UISprite sliderSprite = slider.Find<UISprite>("Icon");
-            if (value)
-                if (sliderSprite.spriteName.Length - 8 > 0)
-                    sliderSprite.spriteName = sliderSprite.spriteName.Substring(0, sliderSprite.spriteName.Length - 8);
-            else
-                sliderSprite.spriteName = sliderSprite.spriteName + "Disabled";
-        }
 
         /// <summary>
         /// Decreases the percentage value of the budget.
@@ -510,8 +544,10 @@ namespace BetterBudget
             percentage.text = "" + slider.value;
         }
 
+
+
         /// <summary>
-        /// Increases tthe percentage value of the budget.
+        /// Increases the percentage value of the budget.
         /// </summary>
         /// <param name="component">The clicked button.</param>
         /// <param name="eventParam">Unused</param>
@@ -526,6 +562,8 @@ namespace BetterBudget
             UILabel percentage = panel.Find<UILabel>("DayPercentage");
             percentage.text = "" + slider.value;
         }
+
+
 
         /// <summary>
         /// Decreases the percentage value of the budget.
@@ -544,6 +582,8 @@ namespace BetterBudget
             percentage.text = "" + slider.value;
         }
 
+
+
         /// <summary>
         /// Increases tthe percentage value of the budget.
         /// </summary>
@@ -560,6 +600,7 @@ namespace BetterBudget
             UILabel percentage = panel.Find<UILabel>("NightPercentage");
             percentage.text = "" + slider.value;
         }
+
 
 
         internal BBCustomSaveFile getSettings()

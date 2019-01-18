@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using ICities;
 using ColossalFramework.UI;
 using UnityEngine;
+using System.Reflection;
 
 
 namespace BetterBudget
@@ -28,13 +29,16 @@ namespace BetterBudget
         private int _expenseUpdateTimer = 1;
         private UIPanel _expensePanel;
 
-        private Dictionary<String, UIPanel> _sliderList;
+        private Dictionary<String, BudgetItem> _budgetItems;
+        private Dictionary<String, UIPanel> _originalBudgetPanels;
         public Dictionary<String, String> _spriteDictionary;
 
         private List<UIEmbeddedBudgetPanel> _embeddedBudgetPanelList;
         private List<UICustomBudgetPanel> _customBudgetPanelList;
 
-        
+        private Dictionary<String, ServiceInfo> _serviceInfos;
+
+        private Dictionary<String, List<UIPanel>> _allBudgetPanels;
 
         public override void Start()
         {
@@ -54,9 +58,12 @@ namespace BetterBudget
             _expensePanel = view.FindUIComponent("FullScreenContainer").Find<UIPanel>("EconomyPanel");
             _expensePanel.absolutePosition = new Vector3(_expensePanel.absolutePosition.x, 5000, _expensePanel.absolutePosition.y); // fix/workaround for economy budget window flickering
 
-            // Create list for slider panels
-            _sliderList = new Dictionary<String, UIPanel>();
+            // Create dictionaries
+            _budgetItems = new Dictionary<String, BudgetItem>();
+            _originalBudgetPanels = new Dictionary<String, UIPanel>();
             _spriteDictionary = new Dictionary<String, String>();
+            _serviceInfos = new Dictionary<String, ServiceInfo>();
+            _allBudgetPanels = new Dictionary<String, List<UIPanel>>();
 
             // Find budget container with all slider panels
             _budgetPanel = view.FindUIComponent<UIPanel>("FullScreenContainer").Find<UIPanel>("EconomyPanel").Find<UITabContainer>("EconomyContainer").Find<UIPanel>("Budget");
@@ -66,24 +73,53 @@ namespace BetterBudget
             {
                 foreach (UIComponent sliderPanel in servicesContainer.components)
                 {
-                    // DEBUG
-                    //foreach (UIComponent component in sliderPanel.components)
-                    //{
-                    //    Debug.Log(component.name, component);
-                    //}
 
-                    String spriteName;
+                    if (sliderPanel.GetComponents<BudgetItem>().Length == 0) { continue; }
+
                     UISprite originalSprite = sliderPanel.Find<UISprite>("Icon");
 
+                    // saves the service sprites for the customizer
+                    String spriteName;
                     if (originalSprite.spriteName.Contains("Disabled"))
                         spriteName = originalSprite.spriteName.Substring(0, originalSprite.spriteName.Length - 8);
                     else
                         spriteName = originalSprite.spriteName;
 
-                    _spriteDictionary.Add(sliderPanel.name, spriteName);
-                    _sliderList.Add(sliderPanel.name, (UIPanel) sliderPanel);
+                    
+                    // Add value changed event to update all other panels
+                    UISlider sliderDay = sliderPanel.Find<UISlider>("DaySlider");
+                    UISlider sliderNight = sliderPanel.Find<UISlider>("NightSlider");
+                    sliderDay.eventValueChanged += copySliderValuesDay;
+                    sliderNight.eventValueChanged += copySliderValuesNight;
 
+                    // Add event that unlocks the components
                     sliderPanel.eventIsEnabledChanged += hitMilestone;
+
+
+                    // save service names and sprites as well as the budget panels (to later remove the milestone event)
+                    _spriteDictionary.Add(sliderPanel.name, spriteName);
+                    _originalBudgetPanels.Add(sliderPanel.name, (UIPanel)sliderPanel);
+
+                    // Add to budget panel list (to copy values on value changed from one another)
+                    if (!_allBudgetPanels.ContainsKey(sliderPanel.name))
+                    {
+                        _allBudgetPanels.Add(sliderPanel.name, new List<UIPanel>());
+                    }
+                    _allBudgetPanels[sliderPanel.name].Add((UIPanel)sliderPanel);
+
+
+                    // Add to original BudgetItem list to create copies of them
+                    BudgetItem budgetItem = sliderPanel.GetComponents<BudgetItem>()[0];
+                    _budgetItems.Add(sliderPanel.name, budgetItem);
+                    
+                    // Copy data binding values from BudgetItem (to be later used to initialize the copies)
+                    BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+                    ItemClass.Service service = (ItemClass.Service)(budgetItem.GetType().GetField("m_Service", bindFlags).GetValue(budgetItem));
+                    ItemClass.SubService subService = (ItemClass.SubService)(budgetItem.GetType().GetField("m_SubService", bindFlags).GetValue(budgetItem));
+                    Int32 budgetExpensePollIndex = (Int32)(budgetItem.GetType().GetField("m_BudgetExpensePollIndex", bindFlags).GetValue(budgetItem));
+                    //Debug.Log(sliderPanel.name + " " + service + " " + subService + " " + budgetExpensePollIndex);
+                    _serviceInfos.Add(sliderPanel.name, new ServiceInfo(sliderPanel.name, service, subService, budgetExpensePollIndex));
+
                 }
             }
 
@@ -141,22 +177,111 @@ namespace BetterBudget
 
         }
 
+
+
         private void hitMilestone(UIComponent component, bool value)
         {
-            foreach (UIEmbeddedBudgetPanel panel in _embeddedBudgetPanelList)
-                panel.hitMilestone(component, value);
-            foreach (UICustomBudgetPanel panel in _customBudgetPanelList)
-                panel.hitMilestone(component, value);
+            if (!_allBudgetPanels.ContainsKey(component.name))
+            {
+                return;
+            }
+            
+            foreach (UIPanel panel in _allBudgetPanels[component.name]) {
+                panel.isEnabled = value;
+                UISprite icon = panel.Find<UISprite>("Icon");
+                if (value)
+                {
+                    if (icon.spriteName.Contains("Disabled"))
+                    {
+                        icon.spriteName = icon.spriteName.Substring(0, icon.spriteName.Length - 8);
+                    }
+                }
+                else
+                {
+                    if (!icon.spriteName.Contains("Disabled"))
+                    {
+                        icon.spriteName = icon.spriteName + "Disabled";
+                    }
+                }
+            }
         }
 
-        public UIPanel getSliderPanel(String name)
+
+
+        private void copySliderValuesDay(UIComponent slider, float value)
         {
-            foreach(KeyValuePair<String, UIPanel> entry in _sliderList) {
+            foreach (UIPanel sliderPanel in _allBudgetPanels[slider.parent.name])
+            {   
+                //if (sliderPanel == slider)
+                //if (sliderPanel.Equals(slider)) 
+                if (sliderPanel.GetInstanceID() == slider.GetInstanceID())
+                {
+                    continue; // skip itself
+                }
+
+                UISlider sliderDay = sliderPanel.Find<UISlider>("DaySlider");
+                sliderDay.value = value;
+            }
+        }
+
+
+
+        private void copySliderValuesNight(UIComponent slider, float value)
+        {
+            foreach (UIPanel sliderPanel in _allBudgetPanels[slider.parent.name])
+            {
+                if (sliderPanel.GetInstanceID() == slider.GetInstanceID())
+                {
+                    continue; // skip itself
+                }
+
+                UISlider sliderNight = sliderPanel.Find<UISlider>("NightSlider");
+                sliderNight.value = value; 
+            }
+        }
+
+
+
+        public BudgetItem getBudgetCopy(String name)
+        {
+            foreach (KeyValuePair<String, BudgetItem> entry in _budgetItems)
+            {
                 if (entry.Value.name.Equals(name))
-                    return entry.Value;
+                {
+                    BudgetItem budgetItemOriginal = entry.Value;
+                    BudgetItem budgetItemCopy = InstanceManager.Instantiate(budgetItemOriginal);
+
+                    _serviceInfos[name].initBudgetItem(budgetItemCopy);
+
+                    UIPanel panelOriginal = (UIPanel)budgetItemOriginal.component;
+                    UIPanel panelCopy = (UIPanel)budgetItemCopy.component;
+
+
+                    UISlider sliderDay = panelCopy.Find<UISlider>("DaySlider");
+                    UISlider sliderNight = panelCopy.Find<UISlider>("NightSlider");
+
+                    sliderDay.eventValueChanged += copySliderValuesDay;
+                    sliderNight.eventValueChanged += copySliderValuesNight;
+
+                    _allBudgetPanels[name].Add(panelCopy);
+
+                    return budgetItemCopy;
+                }
             }
             return null;
         }
+
+        public void removeBudgetCopy(UIPanel panel)
+        {
+            _allBudgetPanels[panel.name].Remove(panel);
+            UISlider sliderDay = panel.Find<UISlider>("DaySlider");
+            UISlider sliderNight = panel.Find<UISlider>("NightSlider");
+
+            sliderDay.eventValueChanged -= copySliderValuesDay;
+            sliderNight.eventValueChanged -= copySliderValuesNight;
+        }
+
+
 
         public override void Update()
         {
@@ -184,11 +309,26 @@ namespace BetterBudget
             base.Update();
         }
 
+
+
         public void unload()
         {
             saveSettings();
 
-            foreach (KeyValuePair<String, UIPanel> entry in _sliderList)
+
+            foreach (KeyValuePair<String, List<UIPanel>> entry in _allBudgetPanels) {
+                foreach (UIPanel panel in entry.Value) {
+                    UISlider sliderDay = panel.Find<UISlider>("DaySlider");
+                    UISlider sliderNight = panel.Find<UISlider>("NightSlider");
+
+                    sliderDay.eventValueChanged -= copySliderValuesDay;
+                    sliderNight.eventValueChanged -= copySliderValuesNight;
+                }
+            }
+
+            //_allBudgetPanels[panel.name].Remove(panel);
+
+            foreach (KeyValuePair<String, UIPanel> entry in _originalBudgetPanels)
             {
                 entry.Value.eventIsEnabledChanged -= hitMilestone;
             }
@@ -203,6 +343,8 @@ namespace BetterBudget
                 GameObject.Destroy(panel.gameObject);
             }
         }
+
+
 
         /// <summary>
         /// Saves playermade changes and settings.
@@ -241,6 +383,8 @@ namespace BetterBudget
             }
         }
 
+
+
         /// <summary>
         /// Loads last session's playermade changes and settings.
         /// </summary>
@@ -266,6 +410,8 @@ namespace BetterBudget
             _expenseUpdateActive = settings.expanseUpdateActive;
             return settings;
         }
+
+
 
         private void createSaveFile()
         {
@@ -300,7 +446,7 @@ namespace BetterBudget
             infoViewPanelNameList.Add("(Library) NaturalResourcesInfoViewPanel");
             budgetSliderNameList.Add(new String[] {});
             infoViewPanelNameList.Add("(Library) PublicTransportInfoViewPanel");
-            budgetSliderNameList.Add(new String[] {"Bus", "Metro", "Train", "Ship", "Plane", "Taxi", "Tram", "Monorail", "CableCar"});
+            budgetSliderNameList.Add(new String[] {"Bus", "Metro", "Train", "Ship", "Plane", "Taxi", "Tram", "Monorail", "CableCar", "Tours"});
             infoViewPanelNameList.Add("(Library) ElectricityInfoViewPanel");
             budgetSliderNameList.Add(new String[] {"Electricity"});
             infoViewPanelNameList.Add("(Library) HappinessInfoViewPanel");
@@ -359,6 +505,9 @@ namespace BetterBudget
             _customBudgetPanelList.Remove(panel);
         }
     }
+
+
+
 
     public enum Mode
     {
