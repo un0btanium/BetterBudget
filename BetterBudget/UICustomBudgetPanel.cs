@@ -341,6 +341,7 @@ namespace BetterBudget
 
         private void onPanelLeave(UIPanel panel)
         {
+            _main.hoverOverPanelEnded();
 
             UILabel total = panel.Find<UILabel>("Total");
             UILabel percentageDay = panel.Find<UILabel>("DayPercentage");

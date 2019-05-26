@@ -14,8 +14,8 @@ namespace BetterBudget
         private BetterBudget2 _main;
         private UIPanel _infoViewPanel;
 
-        private List<bool> _sliderIsOpenList;
         private List<UIPanel> _sliderList;
+        private List<bool> _sliderIsOpen;
 
         public BBEmbeddedSaveFile settings;
 
@@ -34,7 +34,7 @@ namespace BetterBudget
             this.relativePosition = new Vector3(8, _infoViewPanel.height + 2);
             this.size = new Vector2(_infoViewPanel.width - 16, 0); // size
             this._sliderList = new List<UIPanel>();
-            this._sliderIsOpenList = new List<bool>();
+            this._sliderIsOpen = new List<bool>();
             this.isEditEnabled = true;
             settings = new BBEmbeddedSaveFile();
             settings.infoViewPanelName = infoViewPanel.name;
@@ -123,6 +123,7 @@ namespace BetterBudget
                     percentageNight.size = new Vector2(45, total.height);
 
                     this._sliderList.Add(panel);
+                    this._sliderIsOpen.Add(false);
                     settings.budgetSliderNameList.Add(sliderName);
                 }
             }
@@ -150,6 +151,7 @@ namespace BetterBudget
                 GameObject.Destroy(_sliderList[i].gameObject);
             }
             _sliderList.Clear();
+            _sliderIsOpen.Clear();
         }
 
 
@@ -169,6 +171,8 @@ namespace BetterBudget
 
         private void onPanelLeave(UIPanel panel)
         {
+            _main.hoverOverPanelEnded();
+
             UILabel total = panel.Find<UILabel>("Total");
             UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
             UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
@@ -242,17 +246,31 @@ namespace BetterBudget
             }
 
             // Normal Update Routine
+            int i = 0;
             foreach (UIPanel panel in _sliderList)
             {
                 if (panel.containsMouse)
                 {
-                    onPanelEnter(panel);
+
+                    if (_sliderIsOpen[i] == false)
+                    {
+                        onPanelEnter(panel);
+                        _sliderIsOpen[i] = true;
+                    }
+
                 }
                 else
                 {
-                    onPanelLeave(panel);
+
+                    if (_sliderIsOpen[i] == true)
+                    {
+                        onPanelLeave(panel);
+                        _sliderIsOpen[i] = false;
+                    }
+
                 }
 
+                i++;
             }
         }
 
