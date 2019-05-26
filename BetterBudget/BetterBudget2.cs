@@ -27,7 +27,9 @@ namespace BetterBudget
         private bool _budgetWindowManipulated = false;
         private bool _expenseUpdateActive = true;
         private int _expenseUpdateTimer = 1;
+        private int _expenseUpdateTimerCounter = 0;
         private UIPanel _expensePanel;
+        private Vector3 _tempExpensePanelPosition;
 
         private Dictionary<String, BudgetItem> _budgetItems;
         private Dictionary<String, UIPanel> _originalBudgetPanels;
@@ -56,7 +58,7 @@ namespace BetterBudget
 
             //UIView.FullScreenContainer.EconomyPanel isVisible
             _expensePanel = view.FindUIComponent("FullScreenContainer").Find<UIPanel>("EconomyPanel");
-            _expensePanel.absolutePosition = new Vector3(_expensePanel.absolutePosition.x, 5000, _expensePanel.absolutePosition.y); // fix/workaround for economy budget window flickering
+            _tempExpensePanelPosition = _expensePanel.absolutePosition;
 
             // Create dictionaries
             _budgetItems = new Dictionary<String, BudgetItem>();
@@ -291,11 +293,19 @@ namespace BetterBudget
             if (_budgetWindowManipulated)
             {
                 _expensePanel.isVisible = false;
-                _expenseUpdateTimer = 1800;
+                if (_expenseUpdateTimerCounter > 0) {
+                    _expenseUpdateTimer = 240;
+                    _expenseUpdateTimerCounter -= 1;
+                } else {
+                    _expenseUpdateTimer = 1800;
+                }
                 _budgetWindowManipulated = false;
+                _expensePanel.absolutePosition = _tempExpensePanelPosition;
             }
             else if (_expenseUpdateTimer <= 0 && !_expensePanel.isVisible)
             {
+                _tempExpensePanelPosition = _expensePanel.absolutePosition;
+                _expensePanel.absolutePosition = new Vector3(10000, 10000, _expensePanel.absolutePosition.z);
                 _expensePanel.isVisible = true;
                 _budgetWindowManipulated = true;
             }
@@ -503,6 +513,15 @@ namespace BetterBudget
         internal void removeCustomPanel(UICustomBudgetPanel panel)
         {
             _customBudgetPanelList.Remove(panel);
+        }
+
+        internal void hoverOverPanelEnded()
+        {
+            _expenseUpdateTimerCounter = 5;
+            if (_expenseUpdateTimer > 240 || _expenseUpdateTimer < 0)
+            {
+                _expenseUpdateTimer = 240;
+            }
         }
     }
 
