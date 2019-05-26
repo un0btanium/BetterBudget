@@ -42,6 +42,8 @@ namespace BetterBudget
 
         private Dictionary<String, List<UIPanel>> _allBudgetPanels;
 
+        private bool isCurrentlyChangingValues = false;
+
         public override void Start()
         {
             //base.Start();
@@ -212,10 +214,13 @@ namespace BetterBudget
 
         private void copySliderValuesDay(UIComponent slider, float value)
         {
+            if (this.isCurrentlyChangingValues)
+            {
+                return; // prevents additional method calls when changing values
+            }
+            this.isCurrentlyChangingValues = true;
             foreach (UIPanel sliderPanel in _allBudgetPanels[slider.parent.name])
             {   
-                //if (sliderPanel == slider)
-                //if (sliderPanel.Equals(slider)) 
                 if (sliderPanel.GetInstanceID() == slider.GetInstanceID())
                 {
                     continue; // skip itself
@@ -224,12 +229,18 @@ namespace BetterBudget
                 UISlider sliderDay = sliderPanel.Find<UISlider>("DaySlider");
                 sliderDay.value = value;
             }
+            this.isCurrentlyChangingValues = false;
         }
 
 
 
         private void copySliderValuesNight(UIComponent slider, float value)
         {
+            if (this.isCurrentlyChangingValues)
+            {
+                return; // prevents additional method calls when changing values
+            }
+            this.isCurrentlyChangingValues = true;
             foreach (UIPanel sliderPanel in _allBudgetPanels[slider.parent.name])
             {
                 if (sliderPanel.GetInstanceID() == slider.GetInstanceID())
@@ -238,11 +249,24 @@ namespace BetterBudget
                 }
 
                 UISlider sliderNight = sliderPanel.Find<UISlider>("NightSlider");
-                sliderNight.value = value; 
+                sliderNight.value = value;
             }
+            this.isCurrentlyChangingValues = false;
         }
 
 
+        public List<BudgetItem> getBudgetCopies(String[] names)
+        {
+            List<BudgetItem> budgetItems = new List<BudgetItem>();
+            foreach (String name in names) {
+                BudgetItem budgetCopy = getBudgetCopy(name);
+                if (budgetCopy != null)
+                {
+                    budgetItems.Add(budgetCopy);
+                }
+            }
+            return budgetItems;
+        }
 
         public BudgetItem getBudgetCopy(String name)
         {
@@ -253,11 +277,12 @@ namespace BetterBudget
                     BudgetItem budgetItemOriginal = entry.Value;
                     BudgetItem budgetItemCopy = InstanceManager.Instantiate(budgetItemOriginal);
 
+                    budgetItemCopy.name = budgetItemCopy.name.Replace("(Clone)", "").Replace("(Copy)", "");
+
                     _serviceInfos[name].initBudgetItem(budgetItemCopy);
 
                     UIPanel panelOriginal = (UIPanel)budgetItemOriginal.component;
                     UIPanel panelCopy = (UIPanel)budgetItemCopy.component;
-
 
                     UISlider sliderDay = panelCopy.Find<UISlider>("DaySlider");
                     UISlider sliderNight = panelCopy.Find<UISlider>("NightSlider");

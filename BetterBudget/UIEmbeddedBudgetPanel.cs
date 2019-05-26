@@ -72,68 +72,59 @@ namespace BetterBudget
             clearSliderPanel();
             settings.budgetSliderNameList.Clear();
 
-            int numberOfSliders = 0;
+            List<BudgetItem> budgetItems = _main.getBudgetCopies(sliderPanels);
 
-            foreach (String sliderName in sliderPanels)
+            int heightPerBudget = 46;
+            int additionalPadding = 10;
+            if (budgetItems.Count > 4)
             {
-                BudgetItem budgetItem = _main.getBudgetCopy(sliderName);
-                
-                if (budgetItem != null)
-                {
-                    // DEBUG
-                    //foreach (UIComponent component in budgetItem.components)
-                    //{
-                    //    Debug.Log(component.name, component);
-                    //}
-
-                    numberOfSliders++;
-                    
-                    UIPanel panel = (UIPanel) budgetItem.component;
-                    
-                    panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
-                    //AttachUIComponent(panel.gameObject);
-                    AttachUIComponent(budgetItem.gameObject);
-
-                    UIComponent sliderDay = panel.Find<UISlider>("DaySlider");
-                    UIComponent sliderNight = panel.Find<UISlider>("NightSlider");
-                    UIComponent sliderBackground = panel.Find<UISlicedSprite>("SliderBackground");
-                    UILabel total = panel.Find<UILabel>("Total");
-                    UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
-                    UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
-                    UISprite icon = panel.Find<UISprite>("Icon");
-
-                    panel.transform.parent = this.transform;
-                    panel.relativePosition = new Vector3(0, _sliderList.Count * 50);
-                    panel.size = new Vector2(width, panel.height);
-
-                    icon.relativePosition = new Vector3(1, icon.relativePosition.y);
-
-                    sliderBackground.relativePosition = new Vector3(50, sliderBackground.relativePosition.y);
-                    sliderBackground.size = new Vector2(panel.width - 98 - 50, sliderBackground.height);
-                    sliderDay.relativePosition = new Vector3(50, sliderDay.relativePosition.y);
-                    sliderDay.size = new Vector2(panel.width - 98 - 50, sliderDay.height);
-                    sliderNight.relativePosition = new Vector3(50, sliderNight.relativePosition.y);
-                    sliderNight.size = new Vector2(panel.width - 98 - 50, sliderNight.height);
-
-                    total.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
-                    total.size = new Vector2(90, total.height);
-                    percentageDay.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
-                    percentageDay.size = new Vector2(45, total.height);
-                    percentageNight.relativePosition = new Vector3(panel.width - 47, total.relativePosition.y);
-                    percentageNight.size = new Vector2(45, total.height);
-
-                    this._sliderList.Add(panel);
-                    this._sliderIsOpen.Add(false);
-                    settings.budgetSliderNameList.Add(sliderName);
-                }
+                heightPerBudget = 36;
+                additionalPadding = 20;
             }
 
-            if (numberOfSliders > 0)
+            foreach (BudgetItem budgetItem in budgetItems)
             {
-                changeInfoViewPanelHeight(_infoViewPanel.height + numberOfSliders * 50 + 10);
+                UIPanel panel = (UIPanel) budgetItem.component;
+                AttachUIComponent(budgetItem.gameObject);
+
+                UIComponent sliderDay = panel.Find<UISlider>("DaySlider");
+                UIComponent sliderNight = panel.Find<UISlider>("NightSlider");
+                UIComponent sliderBackground = panel.Find<UISlicedSprite>("SliderBackground");
+                UILabel total = panel.Find<UILabel>("Total");
+                UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
+                UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
+                UISprite icon = panel.Find<UISprite>("Icon");
+
+                panel.transform.parent = this.transform;
+                panel.relativePosition = new Vector3(0, this._sliderList.Count * heightPerBudget);
+                panel.size = new Vector2(width, panel.height);
+
+                icon.relativePosition = new Vector3(1, icon.relativePosition.y);
+
+                sliderBackground.relativePosition = new Vector3(50, sliderBackground.relativePosition.y);
+                sliderBackground.size = new Vector2(panel.width - 98 - 50, sliderBackground.height);
+                sliderDay.relativePosition = new Vector3(50, sliderDay.relativePosition.y);
+                sliderDay.size = new Vector2(panel.width - 98 - 50, sliderDay.height);
+                sliderNight.relativePosition = new Vector3(50, sliderNight.relativePosition.y);
+                sliderNight.size = new Vector2(panel.width - 98 - 50, sliderNight.height);
+
+                total.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
+                total.size = new Vector2(90, total.height);
+                percentageDay.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
+                percentageDay.size = new Vector2(45, total.height);
+                percentageNight.relativePosition = new Vector3(panel.width - 47, total.relativePosition.y);
+                percentageNight.size = new Vector2(45, total.height);
+
+                this._sliderList.Add(panel);
+                this._sliderIsOpen.Add(false);
+                settings.budgetSliderNameList.Add(budgetItem.name);
             }
 
-            this.height += numberOfSliders * 50;
+            if (budgetItems.Count > 0)
+            {
+                changeInfoViewPanelHeight(_infoViewPanel.height + (budgetItems.Count * heightPerBudget) + additionalPadding);
+                this.height += budgetItems.Count * heightPerBudget;
+            }
         }
 
 
@@ -142,8 +133,17 @@ namespace BetterBudget
         {
             if (_sliderList.Count == 0)
                 return;
-            changeInfoViewPanelHeight(_infoViewPanel.height - _sliderList.Count * 50 - 10);
-            this.height -= _sliderList.Count * 50;
+
+            int heightPerBudget = 46;
+            int additionalPadding = 10;
+            if (_sliderList.Count > 4)
+            {
+                heightPerBudget = 36;
+                additionalPadding = 20;
+            }
+
+            changeInfoViewPanelHeight(_infoViewPanel.height - (_sliderList.Count * heightPerBudget) - additionalPadding);
+            this.height -= _sliderList.Count * heightPerBudget;
 
             for (int i = 0; i < _sliderList.Count; i++)
             {

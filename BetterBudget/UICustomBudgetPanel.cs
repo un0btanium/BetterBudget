@@ -390,6 +390,7 @@ namespace BetterBudget
         {
             if (_sliderList.Count == 0)
                 return;
+
             this.height = 41;
 
             for (int i = 0; i < _sliderList.Count; i++)
@@ -408,122 +409,124 @@ namespace BetterBudget
             clearSliderPanel();
             settings.budgetSliderNameList.Clear();
 
-            int numberOfSliders = 0;
+            List<BudgetItem> budgetItems = _main.getBudgetCopies(sliderPanels);
 
-            foreach (String sliderName in sliderPanels)
+            int heightPerBudget = 46;
+            int additionalPadding = 0;
+            if (budgetItems.Count > 4)
             {
-                BudgetItem budgetItem = _main.getBudgetCopy(sliderName);
-
-                if (budgetItem != null)
-                {
-                    numberOfSliders++;
-                    _timer.Add(0);
-
-                    UIPanel panel = (UIPanel) budgetItem.component;
-                    panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
-                    AttachUIComponent(panel.gameObject);
-                    UIComponent sliderDay = panel.Find("DaySlider");
-                    UIComponent sliderNight = panel.Find("NightSlider");
-                    UIComponent sliderBackground = panel.Find<UISlicedSprite>("SliderBackground");
-                    UILabel total = panel.Find<UILabel>("Total");
-                    UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
-                    UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
-                    UISprite icon = panel.Find<UISprite>("Icon");
-
-                    panel.transform.parent = this.transform;
-                    panel.relativePosition = new Vector3(2, _sliderList.Count * 50 + 46);
-                    panel.size = new Vector2(width - 6, panel.height - 2);
-
-                    sliderBackground.relativePosition = new Vector3(50, sliderBackground.relativePosition.y);
-                    sliderBackground.size = new Vector2(panel.width - 98 - 50, sliderBackground.height);
-                    sliderDay.relativePosition = new Vector3(50, sliderDay.relativePosition.y);
-                    sliderDay.size = new Vector2(panel.width - 98 - 50, sliderDay.height);
-                    sliderNight.relativePosition = new Vector3(50, sliderNight.relativePosition.y);
-                    sliderNight.size = new Vector2(panel.width - 98 - 50, sliderNight.height);
-
-                    total.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
-                    total.size = new Vector2(90, total.height);
-                    percentageDay.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
-                    percentageDay.size = new Vector2(45, total.height);
-                    percentageNight.relativePosition = new Vector3(panel.width - 47, total.relativePosition.y);
-                    percentageNight.size = new Vector2(45, total.height);
-
-                    UIButton buttonPlusDay = panel.AddUIComponent<UIButton>();
-                    UIButton buttonMinusDay = panel.AddUIComponent<UIButton>();
-                    UIButton buttonPlusNight = panel.AddUIComponent<UIButton>();
-                    UIButton buttonMinusNight = panel.AddUIComponent<UIButton>();
-
-                    buttonPlusDay.name = "Budget Plus Button Day";
-                    buttonPlusDay.size = new Vector2(18, 18);
-                    buttonPlusDay.relativePosition = new Vector3(117, 5);
-                    buttonPlusDay.normalBgSprite = "ButtonMenu";
-                    buttonPlusDay.focusedBgSprite = "ButtonMenuFocused";
-                    buttonPlusDay.hoveredBgSprite = "ButtonMenuHovered";
-                    buttonPlusDay.pressedBgSprite = "ButtonMenuPressed";
-                    buttonPlusDay.text = "+";
-                    buttonPlusDay.textColor = new Color32(0, 255, 0, 255);
-                    buttonPlusDay.textScale = 1.2f;
-                    buttonPlusDay.textHorizontalAlignment = UIHorizontalAlignment.Center;
-                    buttonPlusDay.textVerticalAlignment = UIVerticalAlignment.Middle;
-                    buttonPlusDay.eventClick += adjustBudgetPlusDay;
-                    buttonPlusDay.isVisible = false;
-
-                    buttonPlusNight.name = "Budget Plus Button Night";
-                    buttonPlusNight.size = new Vector2(18, 18);
-                    buttonPlusNight.relativePosition = new Vector3(117, 23);
-                    buttonPlusNight.normalBgSprite = "ButtonMenu";
-                    buttonPlusNight.focusedBgSprite = "ButtonMenuFocused";
-                    buttonPlusNight.hoveredBgSprite = "ButtonMenuHovered";
-                    buttonPlusNight.pressedBgSprite = "ButtonMenuPressed";
-                    buttonPlusNight.text = "+";
-                    buttonPlusNight.textColor = new Color32(0, 255, 0, 255);
-                    buttonPlusNight.textScale = 1.2f;
-                    buttonPlusNight.textHorizontalAlignment = UIHorizontalAlignment.Center;
-                    buttonPlusNight.textVerticalAlignment = UIVerticalAlignment.Middle;
-                    buttonPlusNight.eventClick += adjustBudgetPlusNight;
-                    buttonPlusNight.isVisible = false;
-
-                    buttonMinusDay.name = "Budget Minus Button Day";
-                    buttonMinusDay.size = new Vector2(18, 18);
-                    buttonMinusDay.relativePosition = new Vector3(45, 5);
-                    buttonMinusDay.normalBgSprite = "ButtonMenu";
-                    buttonMinusDay.focusedBgSprite = "ButtonMenuFocused";
-                    buttonMinusDay.hoveredBgSprite = "ButtonMenuHovered";
-                    buttonMinusDay.pressedBgSprite = "ButtonMenuPressed";
-                    buttonMinusDay.text = "-";
-                    buttonMinusDay.textScale = 1.2f;
-                    buttonMinusDay.textHorizontalAlignment = UIHorizontalAlignment.Center;
-                    buttonMinusDay.textVerticalAlignment = UIVerticalAlignment.Middle;
-                    buttonMinusDay.textColor = new Color32(255, 0, 0, 255);
-                    buttonMinusDay.eventClick += adjustBudgetMinusDay;
-                    buttonMinusDay.isVisible = false;
-
-                    buttonMinusNight.name = "Budget Minus Button Night";
-                    buttonMinusNight.size = new Vector2(18, 18);
-                    buttonMinusNight.relativePosition = new Vector3(45, 23);
-                    buttonMinusNight.normalBgSprite = "ButtonMenu";
-                    buttonMinusNight.focusedBgSprite = "ButtonMenuFocused";
-                    buttonMinusNight.hoveredBgSprite = "ButtonMenuHovered";
-                    buttonMinusNight.pressedBgSprite = "ButtonMenuPressed";
-                    buttonMinusNight.text = "-";
-                    buttonMinusNight.textScale = 1.2f;
-                    buttonMinusNight.textHorizontalAlignment = UIHorizontalAlignment.Center;
-                    buttonMinusNight.textVerticalAlignment = UIVerticalAlignment.Middle;
-                    buttonMinusNight.textColor = new Color32(255, 0, 0, 255);
-                    buttonMinusNight.eventClick += adjustBudgetMinusNight;
-                    buttonMinusNight.isVisible = false; ;
-
-
-                    icon.relativePosition = new Vector3(1, icon.relativePosition.y);
-                    icon.isInteractive = true;
-                    icon.eventClick += toggleMode;
-                    icon.BringToFront();
-
-                    _sliderList.Add(panel);
-                    settings.budgetSliderNameList.Add(sliderName);
-                }
+                heightPerBudget = 36;
+                additionalPadding = 13;
             }
-            this.height = numberOfSliders * 50 + 46;
+
+            foreach (BudgetItem budgetItem in budgetItems)
+            {
+                _timer.Add(0);
+
+                UIPanel panel = (UIPanel)budgetItem.component;
+                //panel.name = panel.name.Substring(0, panel.name.Length - 7); // delete ' (Copy)' mark
+                AttachUIComponent(panel.gameObject);
+                UIComponent sliderDay = panel.Find("DaySlider");
+                UIComponent sliderNight = panel.Find("NightSlider");
+                UIComponent sliderBackground = panel.Find<UISlicedSprite>("SliderBackground");
+                UILabel total = panel.Find<UILabel>("Total");
+                UILabel percentageDay = panel.Find<UILabel>("DayPercentage");
+                UILabel percentageNight = panel.Find<UILabel>("NightPercentage");
+                UISprite icon = panel.Find<UISprite>("Icon");
+
+                panel.transform.parent = this.transform;
+                panel.relativePosition = new Vector3(2, _sliderList.Count * heightPerBudget + 46);
+                panel.size = new Vector2(width - 6, panel.height - 2);
+
+                sliderBackground.relativePosition = new Vector3(50, sliderBackground.relativePosition.y);
+                sliderBackground.size = new Vector2(panel.width - 98 - 50, sliderBackground.height);
+                sliderDay.relativePosition = new Vector3(50, sliderDay.relativePosition.y);
+                sliderDay.size = new Vector2(panel.width - 98 - 50, sliderDay.height);
+                sliderNight.relativePosition = new Vector3(50, sliderNight.relativePosition.y);
+                sliderNight.size = new Vector2(panel.width - 98 - 50, sliderNight.height);
+
+                total.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
+                total.size = new Vector2(90, total.height);
+                percentageDay.relativePosition = new Vector3(panel.width - 92, total.relativePosition.y);
+                percentageDay.size = new Vector2(45, total.height);
+                percentageNight.relativePosition = new Vector3(panel.width - 47, total.relativePosition.y);
+                percentageNight.size = new Vector2(45, total.height);
+
+                UIButton buttonPlusDay = panel.AddUIComponent<UIButton>();
+                UIButton buttonMinusDay = panel.AddUIComponent<UIButton>();
+                UIButton buttonPlusNight = panel.AddUIComponent<UIButton>();
+                UIButton buttonMinusNight = panel.AddUIComponent<UIButton>();
+
+                buttonPlusDay.name = "Budget Plus Button Day";
+                buttonPlusDay.size = new Vector2(18, 18);
+                buttonPlusDay.relativePosition = new Vector3(117, 5);
+                buttonPlusDay.normalBgSprite = "ButtonMenu";
+                buttonPlusDay.focusedBgSprite = "ButtonMenuFocused";
+                buttonPlusDay.hoveredBgSprite = "ButtonMenuHovered";
+                buttonPlusDay.pressedBgSprite = "ButtonMenuPressed";
+                buttonPlusDay.text = "+";
+                buttonPlusDay.textColor = new Color32(0, 255, 0, 255);
+                buttonPlusDay.textScale = 1.2f;
+                buttonPlusDay.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                buttonPlusDay.textVerticalAlignment = UIVerticalAlignment.Middle;
+                buttonPlusDay.eventClick += adjustBudgetPlusDay;
+                buttonPlusDay.isVisible = false;
+
+                buttonPlusNight.name = "Budget Plus Button Night";
+                buttonPlusNight.size = new Vector2(18, 18);
+                buttonPlusNight.relativePosition = new Vector3(117, 23);
+                buttonPlusNight.normalBgSprite = "ButtonMenu";
+                buttonPlusNight.focusedBgSprite = "ButtonMenuFocused";
+                buttonPlusNight.hoveredBgSprite = "ButtonMenuHovered";
+                buttonPlusNight.pressedBgSprite = "ButtonMenuPressed";
+                buttonPlusNight.text = "+";
+                buttonPlusNight.textColor = new Color32(0, 255, 0, 255);
+                buttonPlusNight.textScale = 1.2f;
+                buttonPlusNight.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                buttonPlusNight.textVerticalAlignment = UIVerticalAlignment.Middle;
+                buttonPlusNight.eventClick += adjustBudgetPlusNight;
+                buttonPlusNight.isVisible = false;
+
+                buttonMinusDay.name = "Budget Minus Button Day";
+                buttonMinusDay.size = new Vector2(18, 18);
+                buttonMinusDay.relativePosition = new Vector3(45, 5);
+                buttonMinusDay.normalBgSprite = "ButtonMenu";
+                buttonMinusDay.focusedBgSprite = "ButtonMenuFocused";
+                buttonMinusDay.hoveredBgSprite = "ButtonMenuHovered";
+                buttonMinusDay.pressedBgSprite = "ButtonMenuPressed";
+                buttonMinusDay.text = "-";
+                buttonMinusDay.textScale = 1.2f;
+                buttonMinusDay.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                buttonMinusDay.textVerticalAlignment = UIVerticalAlignment.Middle;
+                buttonMinusDay.textColor = new Color32(255, 0, 0, 255);
+                buttonMinusDay.eventClick += adjustBudgetMinusDay;
+                buttonMinusDay.isVisible = false;
+
+                buttonMinusNight.name = "Budget Minus Button Night";
+                buttonMinusNight.size = new Vector2(18, 18);
+                buttonMinusNight.relativePosition = new Vector3(45, 23);
+                buttonMinusNight.normalBgSprite = "ButtonMenu";
+                buttonMinusNight.focusedBgSprite = "ButtonMenuFocused";
+                buttonMinusNight.hoveredBgSprite = "ButtonMenuHovered";
+                buttonMinusNight.pressedBgSprite = "ButtonMenuPressed";
+                buttonMinusNight.text = "-";
+                buttonMinusNight.textScale = 1.2f;
+                buttonMinusNight.textHorizontalAlignment = UIHorizontalAlignment.Center;
+                buttonMinusNight.textVerticalAlignment = UIVerticalAlignment.Middle;
+                buttonMinusNight.textColor = new Color32(255, 0, 0, 255);
+                buttonMinusNight.eventClick += adjustBudgetMinusNight;
+                buttonMinusNight.isVisible = false; ;
+
+
+                icon.relativePosition = new Vector3(1, icon.relativePosition.y);
+                icon.isInteractive = true;
+                icon.eventClick += toggleMode;
+                icon.BringToFront();
+
+                _sliderList.Add(panel);
+                settings.budgetSliderNameList.Add(budgetItem.name);
+            }
+            this.height = budgetItems.Count * heightPerBudget + 46 + additionalPadding;
         }
 
 
