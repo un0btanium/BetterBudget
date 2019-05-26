@@ -14,8 +14,8 @@ namespace BetterBudget
     class BetterBudget2 : UIPanel {
 
         // path of save files
-        private static string filePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\BetterBudgetMod";
-        private static string fileNameSettings = "\\BetterBudgetSettings6.xml";
+        private static string filePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "BetterBudgetMod";
+        private static string fileNameSettings = Path.DirectorySeparatorChar + "BetterBudgetSettings6.xml";
 
         // UIView (main container for UI stuff)
         public UIView view;
