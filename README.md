@@ -16,3 +16,7 @@ I selected the following DLLs:
 * UnityEngine.UI.dll
 
 The project should already come with a post-build event which copies the created DLL to the Local AppData mod folder. You don't need to restart the game after you recompile the project. Just (re)load the savefile.
+
+More useful info here: https://skylines.paradoxwikis.com/Advanced_Mod_Setup
+
+To update the mod to the Workshop you can follow this tutorial: https://steamcommunity.com/sharedfiles/filedetails/?id=424748932
