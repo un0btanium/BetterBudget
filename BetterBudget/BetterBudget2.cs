@@ -46,6 +46,11 @@ namespace BetterBudget
 
         public override void Start()
         {
+            // open budget panel once to load panel (fix by airenelias)
+            // https://github.com/un0btanium/BetterBudget/commit/ed5fef91f814573b946f75c4efbff25b1b59ed9f#diff-bff4c5b399fcc00d47e48386a1d4738159b62ecbb589f25738303a7009ab3fdeR51
+            ToolsModifierControl.mainToolbar.ShowEconomyPanel(1);
+            ToolsModifierControl.mainToolbar.CloseEverything();
+
             //base.Start();
 
             // load UI and attach the BetterBudget object to its origin (top left)
@@ -336,12 +341,12 @@ namespace BetterBudget
             }
 
             // toggle on/off
-            if (Input.GetKeyDown(KeyCode.B) && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
-            {
-                _expenseUpdateActive = !_expenseUpdateActive;
-                _expenseUpdateTimer = 60;
-            }
-            base.Update();
+            //if (Input.GetKeyDown(KeyCode.B) && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
+            //{
+            //    _expenseUpdateActive = !_expenseUpdateActive;
+            //    _expenseUpdateTimer = 60;
+            //}
+            //base.Update();
         }
 
 
@@ -391,7 +396,7 @@ namespace BetterBudget
                 File.Delete(filePath + fileNameSettings);
 
             BBSettings settings = new BBSettings();
-            settings.expanseUpdateActive = _expenseUpdateActive;
+            settings.expanseUpdateActive = true;
             foreach (UIEmbeddedBudgetPanel panel in _embeddedBudgetPanelList)
             {
                 BBEmbeddedSaveFile savefile = panel.getSettings();
@@ -442,7 +447,7 @@ namespace BetterBudget
                 if (reader != null)
                     reader.Close();
             }
-            _expenseUpdateActive = settings.expanseUpdateActive;
+            _expenseUpdateActive = true;
             return settings;
         }
 
